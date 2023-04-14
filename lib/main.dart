@@ -1,5 +1,9 @@
+// Basics imports
 import 'package:flutter/material.dart';
 import 'package:cineflix/home.dart';
+
+// Styles imports
+import 'package:cineflix/styles/base.dart';
 
 void main() {
   runApp(const CineflixApp());
@@ -10,10 +14,13 @@ class CineflixApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: "Cineflix",
-      home: Home(),
+      home: const Home(),
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: BaseStyles.primaryColor,
+      ),
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'utils.dart';
 
 class BaseStyles {
-
   // Typography
   static const String _fontFamily = 'Comfortaa';
 
@@ -14,6 +13,14 @@ class BaseStyles {
   static const h2Size = 20.0;
   static const textSize = 15.0;
   static const smallTextSize = 10.0;
+  static const iconSize = 30.0;
+
+  // Spacing
+  static const double spacing_1 = 6.0;
+  static const double spacing_2 = 9.0;
+  static const double spacing_3 = 12.0;
+  static const double spacing_4 = 16.0;
+  static const double spacing_5 = 20.0;
 
   // Colors (= hex values without #)
   static Color primaryColor = Utils.hexToColor("192C32");
@@ -27,45 +34,38 @@ class BaseStyles {
 
   // Text Styles
   static TextStyle h1 = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: h1Size,
-    color: white,
-    fontWeight: FontWeight.w300
-  );
+      fontFamily: _fontFamily,
+      fontSize: h1Size,
+      color: white,
+      fontWeight: FontWeight.w300);
 
   static TextStyle h2 = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: h2Size,
-    color: white,
-    fontWeight: FontWeight.w700
-  );
+      fontFamily: _fontFamily,
+      fontSize: h2Size,
+      color: white,
+      fontWeight: FontWeight.w700);
 
   static TextStyle text = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: textSize,
-    color: white,
-    fontWeight: FontWeight.w300
-  );
+      fontFamily: _fontFamily,
+      fontSize: textSize,
+      color: white,
+      fontWeight: FontWeight.w300);
 
   static TextStyle smallText = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: smallTextSize,
-    color: white,
-    fontWeight: FontWeight.w300
-  );
+      fontFamily: _fontFamily,
+      fontSize: smallTextSize,
+      color: white,
+      fontWeight: FontWeight.w300);
 
   static TextStyle boldText = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: textSize,
-    color: white,
-    fontWeight: FontWeight.w700
-  );
+      fontFamily: _fontFamily,
+      fontSize: textSize,
+      color: white,
+      fontWeight: FontWeight.w700);
 
   static TextStyle boldSmallText = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: smallTextSize,
-    color: white,
-    fontWeight: FontWeight.w700
-  );
-
+      fontFamily: _fontFamily,
+      fontSize: smallTextSize,
+      color: white,
+      fontWeight: FontWeight.w700);
 }
