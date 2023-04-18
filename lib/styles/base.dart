@@ -16,11 +16,16 @@ class BaseStyles {
   static const iconSize = 30.0;
 
   // Spacing
-  static const double spacing_1 = 6.0;
-  static const double spacing_2 = 9.0;
-  static const double spacing_3 = 12.0;
-  static const double spacing_4 = 16.0;
-  static const double spacing_5 = 20.0;
+  static const double spacing_1 = 5.0;
+  static const double spacing_2 = 10.0;
+  static const double spacing_3 = 20.0;
+  static const double spacing_4 = 30.0;
+  static const double spacing_5 = 40.0;
+  static const double spacing_6 = 50.0;
+  static const double spacing_7 = 60.0;
+  static const double spacing_8 = 100.0;
+  static const double spacing_9 = 150.0;
+  static const double spacing_10 = 200.0;
 
   // Colors (= hex values without #)
   static Color primaryColor = Utils.hexToColor("192C32");

@@ -1,4 +1,4 @@
-// Basics imports
+// Basic imports
 import 'package:flutter/material.dart';
 
 // Pages imports
@@ -53,6 +53,9 @@ class HomeState extends State {
       type: BottomNavigationBarType.fixed,
       currentIndex: currentTab,
       selectedItemColor: BaseStyles.primaryColor,
+      unselectedItemColor: BaseStyles.darkShade_2,
+      backgroundColor: BaseStyles.white,
+      selectedFontSize: BaseStyles.textSize,
       onTap: (int index) {
         setState(() {
           currentTab = index;
@@ -95,6 +98,7 @@ class HomeState extends State {
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
       onPressed: () {},
+      elevation: 0,
       backgroundColor: BaseStyles.primaryColor,
       shape: RoundedRectangleBorder(
           side: BorderSide(width: 3, color: BaseStyles.white),
