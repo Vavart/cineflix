@@ -73,4 +73,10 @@ class BaseStyles {
       fontSize: smallTextSize,
       color: white,
       fontWeight: FontWeight.w700);
+
+  static TextStyle placeholder = TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: textSize,
+      color: darkShade_2,
+      fontWeight: FontWeight.w300);
 }

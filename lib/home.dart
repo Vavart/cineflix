@@ -21,18 +21,18 @@ class HomeState extends State {
   // Current tab index
   int currentTab = 0;
 
-  static const List<Widget> _screens = <Widget>[
+  static final List<Widget> _screens = <Widget>[
     Movies(),
-    Recommandation(),
-    Favorites(),
-    Profile(),
+    const Recommandation(),
+    const Favorites(),
+    const Profile(),
   ];
 
   // Page storage bucket to save and restore the state of the tabs
   final PageStorageBucket bucket = PageStorageBucket();
 
   // Current screen (home)
-  Widget currentScreen = const Movies();
+  Widget currentScreen = Movies();
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +43,8 @@ class HomeState extends State {
         child: currentScreen,
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _buildFloatingActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // floatingActionButton: _buildFloatingActionButton(),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -95,18 +95,19 @@ class HomeState extends State {
     );
   }
 
-  Widget _buildFloatingActionButton() {
-    return FloatingActionButton(
-      onPressed: () {},
-      elevation: 0,
-      backgroundColor: BaseStyles.primaryColor,
-      shape: RoundedRectangleBorder(
-          side: BorderSide(width: 3, color: BaseStyles.white),
-          borderRadius: BorderRadius.circular(9999)),
-      child: const Icon(
-        FeatherIcons.search,
-        size: BaseStyles.iconSize,
-      ),
-    );
-  }
+  // Floating action button : not used for now
+  // Widget _buildFloatingActionButton() {
+  //   return FloatingActionButton(
+  //     onPressed: () {},
+  //     elevation: 0,
+  //     backgroundColor: BaseStyles.primaryColor,
+  //     shape: RoundedRectangleBorder(
+  //         side: BorderSide(width: 3, color: BaseStyles.white),
+  //         borderRadius: BorderRadius.circular(9999)),
+  //     child: const Icon(
+  //       FeatherIcons.search,
+  //       size: BaseStyles.iconSize,
+  //     ),
+  //   );
+  // }
 }
