@@ -42,41 +42,48 @@ class BaseStyles {
       fontFamily: _fontFamily,
       fontSize: h1Size,
       color: white,
-      fontWeight: FontWeight.w300);
+      fontWeight: FontWeight.w300,
+      height: 1.6);
 
   static TextStyle h2 = TextStyle(
       fontFamily: _fontFamily,
       fontSize: h2Size,
       color: white,
-      fontWeight: FontWeight.w700);
+      fontWeight: FontWeight.w700,
+      height: 1.6);
 
   static TextStyle text = TextStyle(
       fontFamily: _fontFamily,
       fontSize: textSize,
       color: white,
-      fontWeight: FontWeight.w300);
+      fontWeight: FontWeight.w300,
+      height: 1.6);
 
   static TextStyle smallText = TextStyle(
       fontFamily: _fontFamily,
       fontSize: smallTextSize,
       color: white,
-      fontWeight: FontWeight.w300);
+      fontWeight: FontWeight.w300,
+      height: 1.6);
 
   static TextStyle boldText = TextStyle(
       fontFamily: _fontFamily,
       fontSize: textSize,
       color: white,
-      fontWeight: FontWeight.w700);
+      fontWeight: FontWeight.w700,
+      height: 1.6);
 
   static TextStyle boldSmallText = TextStyle(
       fontFamily: _fontFamily,
       fontSize: smallTextSize,
       color: white,
-      fontWeight: FontWeight.w700);
+      fontWeight: FontWeight.w700,
+      height: 1.6);
 
   static TextStyle placeholder = TextStyle(
       fontFamily: _fontFamily,
       fontSize: textSize,
       color: darkShade_2,
-      fontWeight: FontWeight.w300);
+      fontWeight: FontWeight.w300,
+      height: 1.6);
 }

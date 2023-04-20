@@ -20,6 +20,7 @@ class SearchStyles {
     contentPadding: const EdgeInsets.symmetric(
         vertical: BaseStyles.spacing_3, horizontal: BaseStyles.spacing_3),
 
+    // No border
     border: OutlineInputBorder(
       borderSide: BorderSide(color: BaseStyles.primaryColor, width: 0),
       borderRadius:
@@ -33,7 +34,7 @@ class SearchStyles {
           const BorderRadius.all(Radius.circular(BaseStyles.spacing_10)),
     ),
 
-    // Focus border
+    // But focus border
     focusedBorder: OutlineInputBorder(
       borderSide: BorderSide(color: BaseStyles.white, width: 2.0),
       borderRadius:

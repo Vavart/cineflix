@@ -26,7 +26,7 @@ class Profile extends StatelessWidget {
 
   Widget _renderPage() {
     return Container(
-      margin: const EdgeInsets.only(top: BaseStyles.spacing_6),
+      margin: const EdgeInsets.only(top: BaseStyles.spacing_2),
       child: Column(
         children: <Widget>[
           _renderHeader(),
