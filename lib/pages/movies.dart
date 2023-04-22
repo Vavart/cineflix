@@ -6,6 +6,7 @@ import 'package:cineflix/pages/movie_detail.dart';
 import 'package:cineflix/styles/base.dart';
 import 'package:cineflix/styles/search.dart';
 import 'package:cineflix/styles/movies.dart';
+import 'package:feather_icons/feather_icons.dart';
 
 class Movies extends StatelessWidget {
   Movies({super.key});
@@ -20,24 +21,29 @@ class Movies extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(child: Column(children: [_renderPage()]));
+    // return _renderPage(context);
+    return SingleChildScrollView(child: _renderPage(context));
   }
 
-  Widget _renderPage() {
-    return Container(
-      margin: const EdgeInsets.only(top: BaseStyles.spacing_6),
+  Widget _renderPage(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+          top: BaseStyles.spacing_6, bottom: BaseStyles.spacing_6),
       child: Column(
-        children: <Widget>[
+        children: [
           _renderFullSearchBar(),
           _renderTrendySection(),
-          _renderSelectedMovies()
+          _renderSelectedSection(context),
         ],
       ),
     );
   }
 
-  // Render methods
+  /// ********************************************************************************* ///
+  /// ***************************** Render the search bar ***************************** ///
+  /// ********************************************************************************* ///
 
+  // Render methods
   Widget _renderFullSearchBar() {
     return Column(
       children: [
@@ -89,7 +95,9 @@ class Movies extends StatelessWidget {
     );
   }
 
-  // Render the Trendy section
+  /// ********************************************************************************* ///
+  /// *************************** Render the trendy section *************************** ///
+  /// ********************************************************************************* ///
   Widget _renderTrendySection() {
     return Column(
       children: [
@@ -119,17 +127,16 @@ class Movies extends StatelessWidget {
   Widget _renderTrendyMovies() {
     return SizedBox(
       height: MovieStyles.simpleMovieCardHeight,
-      child: ListView.separated(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.all(BaseStyles.spacing_2),
         itemCount: 6,
-        separatorBuilder: (BuildContext context, int index) =>
-            const SizedBox(width: BaseStyles.spacing_2),
         itemBuilder: _simpleMovieCardBuilder,
       ),
     );
   }
 
+  // Render a simple movie card : image + title
   Widget _simpleMovieCardBuilder(BuildContext context, int index) {
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -151,8 +158,8 @@ class Movies extends StatelessWidget {
       borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
       child: Image.asset(
         "assets/images/movie_poster.png",
-        width: MovieStyles.simpleMovieImgWidth,
-        height: MovieStyles.simpleMovieImgHeight,
+        width: MovieStyles.movieCardImgWidth,
+        height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       ),
     );
@@ -175,17 +182,167 @@ class Movies extends StatelessWidget {
     );
   }
 
-  Widget _renderSelectedMovies() {
+  /// ******************************************************************************************* ///
+  /// ***************************  Render the selected movies section *************************** ///
+  /// ******************************************************************************************* ///
+
+  // Render the selected movies section
+  Widget _renderSelectedSection(BuildContext context) {
     return Column(
-      children: const [Text("Our selection")],
+      children: [
+        _renderSelectedMoviesTitle(), // Selected movies
+        _renderSelectedMoviesList(context), // Selected movies list
+      ],
+    );
+  }
+
+  // Render the Selected movies section title
+  Widget _renderSelectedMoviesTitle() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
+          BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
+      child: SizedBox(
+        width: double.infinity,
+        child: Text(
+          "Our selection",
+          style: BaseStyles.h2,
+          textAlign: TextAlign.left,
+        ),
+      ),
+    );
+  }
+
+  Widget _renderSelectedMoviesList(BuildContext context) {
+    return Column(
+      children: [
+        // Render the 5 selected movies (for loop because ListView.builder doesn't work with Column (unbounded height issues))
+        for (int i = 0; i < 5; i++)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+                BaseStyles.spacing_3,
+                BaseStyles.spacing_2,
+                BaseStyles.spacing_3,
+                BaseStyles.spacing_1),
+            child: _complexMovieCard(context, i),
+          ),
+      ],
+    );
+  }
+
+  // Render the Selected movies section list : image + title + rating + description + watch/unwatch icon
+  Widget _complexMovieCard(BuildContext context, int index) {
+    return GestureDetector(
+      onTap: () => _navigationToMovieDetail(context, index),
+      child: SizedBox(
+        height: MovieStyles.complexMovieCardHeight,
+        width: MediaQuery.of(context).size.width,
+        child: Row(
+          children: [
+            _renderMovieComplexCardImage(),
+            // Separator between the image and the info
+            const SizedBox(width: BaseStyles.spacing_3),
+            _renderMovieComplexCardInfo(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _renderMovieComplexCardImage() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+      child: Image.asset(
+        "assets/images/no_movie_preview.png",
+        width: MovieStyles.movieCardImgWidth,
+        height: MovieStyles.movieCardImgHeight,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Widget _renderMovieComplexCardInfo(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _renderMovieComplexCardTitle(),
+        _renderMovieComplexCardIcons(),
+        _renderMovieComplexCardDescription(context),
+      ],
+    );
+  }
+
+  Widget _renderMovieComplexCardTitle() {
+    return Text(
+      textAlign: TextAlign.left,
+      "Movie Title",
+      style: BaseStyles.boldText,
+    );
+  }
+
+  Widget _renderMovieComplexCardIcons() {
+    return Row(
+      children: [
+        _renderMovieComplexCardRating(),
+        _renderMovieComplexCardWatchIcon(),
+      ],
+    );
+  }
+
+  Widget _renderMovieComplexCardRating() {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
+      child: Row(
+        children: [
+          Icon(
+            FeatherIcons.star,
+            color: BaseStyles.yellowStar,
+          ),
+          // Add a space between the icon and the text
+          const SizedBox(width: BaseStyles.spacing_1),
+          Text(
+            "90%",
+            style: BaseStyles.boldSmallYellowText,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderMovieComplexCardWatchIcon() {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
+      child: Icon(
+        FeatherIcons.eye,
+        color: BaseStyles.lightBlue,
+      ),
+    );
+  }
+
+  Widget _renderMovieComplexCardDescription(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
+      width: MediaQuery.of(context).orientation == Orientation.portrait
+          ? 200.0
+          : MediaQuery.of(context).size.width * 0.6,
+      child: Text(
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nisl nisl ultricies.",
+        style: BaseStyles.smallText,
+        textAlign: TextAlign.left,
+
+        // Limit the number of lines to 2 and add an ellipsis if the text is too long
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 
   // Navigation methods
-
   void _navigationToMovieDetail(BuildContext context, int index) {
-    print("Navigation to Movie Detail");
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
   }
 }

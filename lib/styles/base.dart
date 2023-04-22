@@ -16,6 +16,7 @@ class BaseStyles {
   static const iconSize = 30.0;
 
   // Spacing
+  static const double spacing_0 = 0.0;
   static const double spacing_1 = 5.0;
   static const double spacing_2 = 10.0;
   static const double spacing_3 = 20.0;
@@ -77,6 +78,12 @@ class BaseStyles {
       fontFamily: _fontFamily,
       fontSize: smallTextSize,
       color: white,
+      fontWeight: FontWeight.w700,
+      height: 1.6);
+  static TextStyle boldSmallYellowText = TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: smallTextSize,
+      color: yellowStar,
       fontWeight: FontWeight.w700,
       height: 1.6);
 

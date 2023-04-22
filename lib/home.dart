@@ -1,113 +1,56 @@
 // Basic imports
 import 'package:flutter/material.dart';
 
-// Pages imports
-import 'package:cineflix/pages/movies.dart';
-import 'package:cineflix/pages/recommandation.dart';
-import 'package:cineflix/pages/favorites.dart';
-import 'package:cineflix/pages/profile.dart';
-
 // Styles imports
 import 'package:cineflix/styles/base.dart';
-import 'package:feather_icons/feather_icons.dart';
+
+// Widgets imports
+import 'package:cineflix/components/bottom_navigation_bar.dart';
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
+
   @override
   HomeState createState() => HomeState();
 }
 
 class HomeState extends State {
+
   // Current tab index
-  int currentTab = 0;
-
-  static final List<Widget> _screens = <Widget>[
-    Movies(),
-    const Recommandation(),
-    const Favorites(),
-    const Profile(),
-  ];
-
-  // Page storage bucket to save and restore the state of the tabs
-  final PageStorageBucket bucket = PageStorageBucket();
-
-  // Current screen (home)
-  Widget currentScreen = Movies();
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
-      body: PageStorage(
-        bucket: bucket,
-        child: currentScreen,
+      body: IndexedStack(
+        index: _currentIndex,
+        children: CineflixBottomNavgationBar.pages,
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      // floatingActionButton: _buildFloatingActionButton(),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      currentIndex: currentTab,
+
+      items: CineflixBottomNavgationBar.navItems,
+      currentIndex: _currentIndex,
+
       selectedItemColor: BaseStyles.primaryColor,
       unselectedItemColor: BaseStyles.darkShade_2,
       backgroundColor: BaseStyles.white,
       selectedFontSize: BaseStyles.textSize,
+
       onTap: (int index) {
         setState(() {
-          currentTab = index;
-          currentScreen = _screens[index];
+          _currentIndex = index;
         });
       },
-      items: const [
-        BottomNavigationBarItem(
-          icon: Padding(
-            padding: EdgeInsets.all(BaseStyles.spacing_1),
-            child: Icon(FeatherIcons.film),
-          ),
-          label: "Movies",
-        ),
-        BottomNavigationBarItem(
-          icon: Padding(
-            padding: EdgeInsets.all(BaseStyles.spacing_1),
-            child: Icon(FeatherIcons.cpu),
-          ),
-          label: "AI",
-        ),
-        BottomNavigationBarItem(
-          icon: Padding(
-            padding: EdgeInsets.all(BaseStyles.spacing_1),
-            child: Icon(FeatherIcons.heart),
-          ),
-          label: "Favorites",
-        ),
-        BottomNavigationBarItem(
-          icon: Padding(
-            padding: EdgeInsets.all(BaseStyles.spacing_1),
-            child: Icon(FeatherIcons.user),
-          ),
-          label: "Profile",
-        ),
-      ],
+
     );
   }
 
-  // Floating action button : not used for now
-  // Widget _buildFloatingActionButton() {
-  //   return FloatingActionButton(
-  //     onPressed: () {},
-  //     elevation: 0,
-  //     backgroundColor: BaseStyles.primaryColor,
-  //     shape: RoundedRectangleBorder(
-  //         side: BorderSide(width: 3, color: BaseStyles.white),
-  //         borderRadius: BorderRadius.circular(9999)),
-  //     child: const Icon(
-  //       FeatherIcons.search,
-  //       size: BaseStyles.iconSize,
-  //     ),
-  //   );
-  // }
 }
