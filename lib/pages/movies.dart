@@ -8,7 +8,6 @@ import 'package:cineflix/styles/search.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
-
 class Movies extends StatelessWidget {
   Movies({super.key});
 
@@ -170,7 +169,7 @@ class Movies extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: 100,
+      width: MovieStyles.simpleMovieCardTitleWidth,
       child: Text(
         "John Wick : Chapter 4",
         style: BaseStyles.boldSmallText,

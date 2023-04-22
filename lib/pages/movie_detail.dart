@@ -233,7 +233,7 @@ class _MovieDetail extends State<MovieDetail> {
     return TextButton(
         // ignore: avoid_print
         onPressed: () => print("Tapped"),
-        style: MovieStyles.ctaButtonStyle,
+        style: BaseStyles.ctaButtonStyle,
         child: Padding(
           padding: const EdgeInsets.symmetric(
               vertical: BaseStyles.spacing_1, horizontal: BaseStyles.spacing_2),

@@ -101,4 +101,15 @@ class BaseStyles {
       color: darkShade_2,
       fontWeight: FontWeight.w300,
       height: 1.6);
+
+
+  // Buttons Styles
+  static final ctaButtonStyle = ButtonStyle(
+    backgroundColor: MaterialStateProperty.all<Color>(BaseStyles.darkShade_1),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_10),
+      ),
+    ),
+  );
 }
