@@ -7,6 +7,9 @@ import 'package:cineflix/styles/movies.dart';
 import 'package:cineflix/styles/recommandation.dart';
 import 'package:feather_icons/feather_icons.dart';
 
+// Pages imports
+import 'movie_detail.dart';
+
 class Recommandation extends StatefulWidget {
   const Recommandation({super.key});
 
@@ -103,15 +106,15 @@ class RecommandationState extends State<Recommandation> {
     // _moviesSuggTitles.length = _moviesSuggPosters.length
     for (int i = 0; i < _moviesSuggTitles.length; i++) {
       suggestionCards.add(
-          _renderSuggestionCard(_moviesSuggTitles[i], _moviesSuggPosters[i]));
+          _renderSuggestionCard(_moviesSuggTitles[i], _moviesSuggPosters[i], i));
     }
     return suggestionCards;
   }
 
-  Widget _renderSuggestionCard(String title, String poster) {
+  Widget _renderSuggestionCard(String title, String poster, int index) {
     return GestureDetector(
       // ignore: avoid_print
-      onTap: () => print("Movie suggestion card tapped"),
+      onTap: () => _navigationToMovieDetail(context, index),
       child: Column(
         children: [
           _renderSuggestionCardImage(poster),
@@ -238,5 +241,11 @@ class RecommandationState extends State<Recommandation> {
         ),
       ),
     );
+  }
+
+  // Navigation methods
+  void _navigationToMovieDetail(BuildContext context, int index) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
   }
 }
