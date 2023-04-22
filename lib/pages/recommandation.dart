@@ -105,8 +105,8 @@ class RecommandationState extends State<Recommandation> {
 
     // _moviesSuggTitles.length = _moviesSuggPosters.length
     for (int i = 0; i < _moviesSuggTitles.length; i++) {
-      suggestionCards.add(
-          _renderSuggestionCard(_moviesSuggTitles[i], _moviesSuggPosters[i], i));
+      suggestionCards.add(_renderSuggestionCard(
+          _moviesSuggTitles[i], _moviesSuggPosters[i], i));
     }
     return suggestionCards;
   }

@@ -53,9 +53,13 @@ class _MovieDetail extends State<MovieDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          backgroundColor: BaseStyles.primaryColor,
+          title: Text("John Wick : Chapter 4", style: BaseStyles.boldText),
+        ),
         body: SingleChildScrollView(
-      child: _renderPage(),
-    ));
+          child: _renderPage(),
+        ));
   }
 
   Widget _renderPage() {

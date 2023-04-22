@@ -1,7 +1,5 @@
 // Basic imports
-import 'package:cineflix/pages/search.dart';
 import 'package:flutter/material.dart';
-import 'package:cineflix/pages/movie_detail.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -9,8 +7,23 @@ import 'package:cineflix/styles/search.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
-class Movies extends StatelessWidget {
-  Movies({super.key});
+// Pages imports
+import 'movie_detail.dart';
+
+class Search extends StatefulWidget {
+  // Search query
+  final String searchQuery;
+  const Search({super.key, required this.searchQuery});
+
+  @override
+  // ignore: no_logic_in_create_state
+  createState() => _SearchState(searchQuery);
+}
+
+class _SearchState extends State<Search> {
+  // Search query
+  String searchQuery;
+  _SearchState(this.searchQuery);
 
   // Search bar text field controller (to clear the field)
   final searchBarField = TextEditingController();
@@ -21,21 +34,29 @@ class Movies extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // return _renderPage(context);
-    return SingleChildScrollView(child: _renderPage(context));
+  void initState() {
+    super.initState();
+    searchBarField.text = searchQuery;
   }
 
-  Widget _renderPage(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-          top: BaseStyles.spacing_6, bottom: BaseStyles.spacing_6),
-      child: Column(
-        children: [
-          _renderFullSearchBar(context),
-          _renderTrendySection(),
-          _renderSelectedSection(context),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: BaseStyles.primaryColor,
+        title: Text(searchQuery),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.symmetric(
+              horizontal: BaseStyles.spacing_2, vertical: BaseStyles.spacing_6),
+          child: Column(
+            children: [
+              _renderFullSearchBar(),
+              _renderSearchedMovies(context),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -45,11 +66,11 @@ class Movies extends StatelessWidget {
   /// ********************************************************************************* ///
 
   // Render methods
-  Widget _renderFullSearchBar(BuildContext context) {
+  Widget _renderFullSearchBar() {
     return Column(
       children: [
         _renderTextSearchBar(),
-        _renderSearchBar(context),
+        _renderSearchBar(),
       ],
     );
   }
@@ -69,7 +90,7 @@ class Movies extends StatelessWidget {
     );
   }
 
-  Widget _renderSearchBar(BuildContext context) {
+  Widget _renderSearchBar() {
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_3),
@@ -80,8 +101,9 @@ class Movies extends StatelessWidget {
               controller: searchBarField,
               cursorColor: BaseStyles.white,
               style: BaseStyles.text,
-              onSubmitted: (value) => 
-                {if (value.isNotEmpty) _navigationToSearchedMovies(context)}, // Check if the search bar is not empty to navigate to the searched movies page
+              onSubmitted: (value) => {
+                    if (value.isNotEmpty) setState(() => searchQuery = value)
+                  }, // Update the search query if the user submit a new one and the field is not empty
               decoration: SearchStyles.searchBar),
         ),
 
@@ -97,99 +119,11 @@ class Movies extends StatelessWidget {
     );
   }
 
-  /// ********************************************************************************* ///
-  /// *************************** Render the trendy section *************************** ///
-  /// ********************************************************************************* ///
-  Widget _renderTrendySection() {
-    return Column(
-      children: [
-        _renderTrendySectionTitle(), // Trendy
-        _renderTrendyMovies(), // Trendy movies
-      ],
-    );
-  }
+  /// ********************************************************************************** ///
+  /// ***************************** Render searched movies ***************************** ///
+  /// ********************************************************************************** ///
 
-  // Render the Trendy section title
-  Widget _renderTrendySectionTitle() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
-          BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          "Trendy",
-          style: BaseStyles.h2,
-          textAlign: TextAlign.left,
-        ),
-      ),
-    );
-  }
-
-  // Render the Trendy section movies
-  Widget _renderTrendyMovies() {
-    return SizedBox(
-      height: MovieStyles.simpleMovieCardHeight,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.all(BaseStyles.spacing_2),
-        itemCount: 6,
-        itemBuilder: _simpleMovieCardBuilder,
-      ),
-    );
-  }
-
-  // Render a simple movie card : image + title
-  Widget _simpleMovieCardBuilder(BuildContext context, int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: GestureDetector(
-        onTap: () => _navigationToMovieDetail(context, index),
-        child: Column(
-          children: [
-            _renderMovieSimpleCardImage(),
-            _renderMovieSimpleCardTitle(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _renderMovieSimpleCardImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-      child: Image.asset(
-        "assets/images/movie_poster.png",
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      ),
-    );
-  }
-
-  Widget _renderMovieSimpleCardTitle() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: MovieStyles.simpleMovieCardTitleWidth,
-      child: Text(
-        "John Wick : Chapter 4",
-        style: BaseStyles.boldSmallText,
-        textAlign: TextAlign.center,
-
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  /// ******************************************************************************************* ///
-  /// ***************************  Render the selected movies section *************************** ///
-  /// ******************************************************************************************* ///
-
-  // Render the selected movies section
-  Widget _renderSelectedSection(BuildContext context) {
+  Widget _renderSearchedMovies(BuildContext context) {
     return Column(
       children: [
         _renderSelectedMoviesTitle(), // Selected movies
@@ -277,7 +211,7 @@ class Movies extends StatelessWidget {
   Widget _renderMovieComplexCardTitle() {
     return Text(
       textAlign: TextAlign.left,
-      "Movie Title",
+      searchQuery,
       style: BaseStyles.boldText,
     );
   }
@@ -346,14 +280,5 @@ class Movies extends StatelessWidget {
   void _navigationToMovieDetail(BuildContext context, int index) {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
-  }
-
-  void _navigationToSearchedMovies(BuildContext context) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Search(
-                  searchQuery: searchBarField.text,
-                )));
   }
 }
