@@ -8,6 +8,7 @@ import 'package:cineflix/styles/search.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
+
 class Movies extends StatelessWidget {
   Movies({super.key});
 

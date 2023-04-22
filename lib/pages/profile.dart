@@ -81,7 +81,8 @@ class Profile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: BaseStyles.spacing_4),
       child: Column(
-        children: <Widget>[
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           _renderFactTitle(facts.title),
           _renderFactList(facts.facts),
         ],
@@ -95,20 +96,18 @@ class Profile extends StatelessWidget {
           BaseStyles.spacing_4, 0, BaseStyles.spacing_4, BaseStyles.spacing_2),
 
       // This is the trick to make the text align left
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          textAlign: TextAlign.left,
-          title,
-          style: BaseStyles.h2,
-        ),
+      child: Text(
+        textAlign: TextAlign.left,
+        title,
+        style: BaseStyles.h2,
       ),
     );
   }
 
   Widget _renderFactList(List<String> facts) {
     return Column(
-      children: <Widget>[
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         for (var fact in facts) _renderFactItem(fact),
       ],
     );
@@ -124,13 +123,9 @@ class Profile extends StatelessWidget {
       ),
 
       // This is the trick to make the text align left
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          textAlign: TextAlign.left,
-          fact,
-          style: BaseStyles.text,
-        ),
+      child: Text(
+        fact,
+        style: BaseStyles.text,
       ),
     );
   }

@@ -80,10 +80,18 @@ class BaseStyles {
       color: white,
       fontWeight: FontWeight.w700,
       height: 1.6);
+
   static TextStyle boldSmallYellowText = TextStyle(
       fontFamily: _fontFamily,
       fontSize: smallTextSize,
       color: yellowStar,
+      fontWeight: FontWeight.w700,
+      height: 1.6);
+
+  static TextStyle boldSmallCandyText = TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: smallTextSize,
+      color: candy,
       fontWeight: FontWeight.w700,
       height: 1.6);
 
