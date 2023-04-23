@@ -48,6 +48,9 @@ class MoviesState extends State<Movies> {
   // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
   List<String> _watchedMovies = [];
 
+  // Is loading
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +70,8 @@ class MoviesState extends State<Movies> {
 
     // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
     _watchedMovies = _prefs.getStringList("watched_movies") ?? [];
+
+    setState(() => _isLoading = false);
   }
 
   // Init shared preferences
@@ -95,9 +100,13 @@ class MoviesState extends State<Movies> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-        onRefresh: () async => init(),
-        child: SingleChildScrollView(child: _renderPage(context)));
+    if (_isLoading) {
+      return const CircularProgressIndicator();
+    } else {
+      return RefreshIndicator(
+          onRefresh: () async => init(),
+          child: SingleChildScrollView(child: _renderPage(context)));
+    }
   }
 
   Widget _renderPage(BuildContext context) {
@@ -231,17 +240,24 @@ class MoviesState extends State<Movies> {
   }
 
   Widget _renderMovieSimpleCardImage(int index) {
-    Image image;
+    FadeInImage imageFadeIn;
+
     if (trendyMovies[index].poster_path != null) {
-      image = Image.network(
-        _apiImageUrl + trendyMovies[index].poster_path!,
+      imageFadeIn = FadeInImage(
+        image: NetworkImage(
+          _apiImageUrl + trendyMovies[index].poster_path!,
+        ),
+        placeholder: const AssetImage("assets/images/no_movie_preview.png"),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       );
     } else {
-      image = Image.asset(
-        "assets/images/no_movie_preview.png",
+      imageFadeIn = const FadeInImage(
+        image: AssetImage(
+          "assets/images/no_movie_preview.png",
+        ),
+        placeholder: AssetImage("assets/images/no_movie_preview.png"),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
@@ -249,7 +265,7 @@ class MoviesState extends State<Movies> {
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-      child: image,
+      child: imageFadeIn,
     );
   }
 
@@ -414,7 +430,7 @@ class MoviesState extends State<Movies> {
   Widget _renderMovieComplexCardWatchIcon(int index) {
     //
     IconData icon = _watchedMovies.contains(selectedMovies[index].id.toString())
-        ? FeatherIcons.eye
+        ? FeatherIcons.checkCircle
         : FeatherIcons.eyeOff;
 
     return Container(

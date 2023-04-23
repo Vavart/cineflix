@@ -145,8 +145,11 @@ class MovieDetailState extends State<MovieDetail> {
           backgroundColor: BaseStyles.primaryColor,
           title: Text(movie.original_title, style: BaseStyles.boldText),
         ),
-        body: SingleChildScrollView(
-          child: _renderPage(),
+        body: RefreshIndicator(
+          onRefresh: () async => _init(),
+          child: SingleChildScrollView(
+            child: _renderPage(),
+          ),
         ));
   }
 
@@ -166,14 +169,13 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieIllustration() {
-    ImageProvider image;
+    ImageProvider image =  const AssetImage(
+        "assets/images/no_movie_illustration_preview.png",
+      );
+      
     if (movie.poster_path != null) {
       image = NetworkImage(
         _apiImageUrl + movie.poster_path!,
-      );
-    } else {
-      image = const AssetImage(
-        "assets/images/no_movie_illustration_preview.png",
       );
     }
 
@@ -300,7 +302,7 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _renderIsMovieWatched() {
     // Check if the movie is watched or not to display the right icon
-    IconData icon = _isWatched ? FeatherIcons.eye : FeatherIcons.eyeOff;
+    IconData icon = _isWatched ? FeatherIcons.checkCircle : FeatherIcons.eyeOff;
 
     return Row(
       children: [
@@ -347,7 +349,7 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _buildWatchedCTA() {
     // Check if the movie is watched or not to display the right icon
-    IconData icon = _isWatched ? FeatherIcons.eyeOff : FeatherIcons.eye;
+    IconData icon = _isWatched ? FeatherIcons.eyeOff : FeatherIcons.checkCircle;
 
     return TextButton(
         onPressed: () => _handleWatchedButtonPressed(),
@@ -491,16 +493,16 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderActorCardPicture(int index) {
-    ImageProvider image;
+
+    ImageProvider image = const AssetImage(
+        "assets/images/no_movie_preview.png",
+    );
+    
     if (cast[index].profile_path != null) {
       image = NetworkImage(
         _apiImageUrl + cast[index].profile_path!,
       );
-    } else {
-      image = const AssetImage(
-        "assets/images/no_movie_preview.png",
-      );
-    }
+    } 
 
     return Container(
       width: MovieStyles.actorCardImgWidth,

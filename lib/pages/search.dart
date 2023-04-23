@@ -202,17 +202,24 @@ class SearchState extends State<Search> {
   }
 
   Widget _renderMovieComplexCardImage(int index) {
-    Image image;
+    FadeInImage imageFadeIn;
+
     if (searchedMovies[index].poster_path != null) {
-      image = Image.network(
-        _apiImageUrl + searchedMovies[index].poster_path!,
+      imageFadeIn = FadeInImage(
+        image: NetworkImage(
+          _apiImageUrl + searchedMovies[index].poster_path!,
+        ),
+        placeholder: const AssetImage("assets/images/no_movie_preview.png"),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       );
     } else {
-      image = Image.asset(
-        "assets/images/no_movie_preview.png",
+      imageFadeIn = const FadeInImage(
+        image: AssetImage(
+          "assets/images/no_movie_preview.png",
+        ),
+        placeholder: AssetImage("assets/images/no_movie_preview.png"),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
@@ -220,7 +227,7 @@ class SearchState extends State<Search> {
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-      child: image,
+      child: imageFadeIn,
     );
   }
 
@@ -283,7 +290,7 @@ class SearchState extends State<Search> {
   Widget _renderMovieComplexCardWatchIcon(index) {
     //
     IconData icon = _watchedMovies.contains(searchedMovies[index].id.toString())
-        ? FeatherIcons.eye
+        ? FeatherIcons.checkCircle
         : FeatherIcons.eyeOff;
 
     return Container(
