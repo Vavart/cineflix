@@ -13,6 +13,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   json_annotation: ^4.8.0
   http: ^0.13.5
+  shared_preferences: ^2.1.0
 
 dev_dependencies:
   flutter_test:

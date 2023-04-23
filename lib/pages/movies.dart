@@ -1,7 +1,6 @@
 // Basic imports
-import 'package:cineflix/pages/search.dart';
 import 'package:flutter/material.dart';
-import 'package:cineflix/pages/movie_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -11,8 +10,11 @@ import 'package:feather_icons/feather_icons.dart';
 
 // Models imports
 import 'package:cineflix/models/movie.dart';
-
 import 'package:cineflix/models/api_search_response.dart';
+
+// Pages imports
+import 'package:cineflix/pages/search.dart';
+import 'package:cineflix/pages/movie_detail.dart';
 
 class Movies extends StatefulWidget {
   const Movies({super.key});
@@ -22,6 +24,9 @@ class Movies extends StatefulWidget {
 }
 
 class MoviesState extends State<Movies> {
+  // Shared preferences
+  late SharedPreferences _prefs;
+
   // Search bar text field controller (to clear the field)
   final searchBarField = TextEditingController();
 
@@ -40,6 +45,9 @@ class MoviesState extends State<Movies> {
   // API url to get images
   final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
 
+  // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
+  List<String> _watchedMovies = [];
+
   @override
   void initState() {
     super.initState();
@@ -48,11 +56,22 @@ class MoviesState extends State<Movies> {
 
   // Init method : render trendy movies and selected movies
   void init() async {
+    // Init shared preferences
+    await _initSharedPreferences();
+
     // Render trendy movies
     await _initTrendyMovies();
 
     // Render selected movies
     await _initSelectedMovies();
+
+    // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
+    _watchedMovies = _prefs.getStringList("watched_movies") ?? [];
+  }
+
+  // Init shared preferences
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
   // Take the 10 first movies from the API response and set the trendy movies
@@ -76,8 +95,9 @@ class MoviesState extends State<Movies> {
 
   @override
   Widget build(BuildContext context) {
-    // return _renderPage(context);
-    return SingleChildScrollView(child: _renderPage(context));
+    return RefreshIndicator(
+        onRefresh: () async => init(),
+        child: SingleChildScrollView(child: _renderPage(context)));
   }
 
   Widget _renderPage(BuildContext context) {
@@ -364,7 +384,7 @@ class MoviesState extends State<Movies> {
     return Row(
       children: [
         _renderMovieComplexCardRating(index),
-        _renderMovieComplexCardWatchIcon(),
+        _renderMovieComplexCardWatchIcon(index),
       ],
     );
   }
@@ -372,7 +392,7 @@ class MoviesState extends State<Movies> {
   Widget _renderMovieComplexCardRating(int index) {
     int rating = (selectedMovies[index].vote_average * 10).toInt();
     return Container(
-      margin: const EdgeInsets.symmetric( 
+      margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
       child: Row(
         children: [
@@ -391,12 +411,17 @@ class MoviesState extends State<Movies> {
     );
   }
 
-  Widget _renderMovieComplexCardWatchIcon() {
+  Widget _renderMovieComplexCardWatchIcon(int index) {
+    //
+    IconData icon = _watchedMovies.contains(selectedMovies[index].id.toString())
+        ? FeatherIcons.eye
+        : FeatherIcons.eyeOff;
+
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
       child: Icon(
-        FeatherIcons.eye,
+        icon,
         color: BaseStyles.lightBlue,
       ),
     );

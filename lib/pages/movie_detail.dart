@@ -1,5 +1,6 @@
 // Basic imports
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -22,34 +23,22 @@ class MovieDetail extends StatefulWidget {
 }
 
 class MovieDetailState extends State<MovieDetail> {
+  // Movie ID
   int movieID;
+
+  // Shared preferences
+  late SharedPreferences _prefs;
+
+  // List of all favorite / watched movies id (will be fetched from the shared preferences)
+  List<String> _favoriteMovies = [];
+  List<String> _watchedMovies = [];
+
+  // Usefull variables for the UI state of the page (favorite / watched state) (will be set from the shared preferences)
+  bool _isFavorite = false;
+  bool _isWatched = false;
+
+  // Constructor
   MovieDetailState(this.movieID);
-
-  // List of actions for the CTAs
-  final List<String> _ctaActions = [
-    "Mark as unwatched",
-    "Watch trailer",
-    "Share",
-  ];
-
-  // List of icons for the CTAs
-  final List<Icon> _ctaIcons = [
-    Icon(
-      FeatherIcons.eyeOff,
-      color: BaseStyles.lightBlue,
-      size: MovieStyles.movieCTAIconSize,
-    ),
-    Icon(
-      FeatherIcons.externalLink,
-      color: BaseStyles.lightBlue,
-      size: MovieStyles.movieCTAIconSize,
-    ),
-    Icon(
-      FeatherIcons.share2,
-      color: BaseStyles.lightBlue,
-      size: MovieStyles.movieCTAIconSize,
-    ),
-  ];
 
   // The movie to display in the page (will be fetched from the API)
   Movie movie = Movie(
@@ -63,7 +52,7 @@ class MovieDetailState extends State<MovieDetail> {
     vote_average: 0,
   );
 
-  // List of cast to display in the page (will be fetched from the API)
+  // List of the casting to display in the page (will be fetched from the API)
   List<Cast> cast = [];
 
   // API url to get images
@@ -72,25 +61,81 @@ class MovieDetailState extends State<MovieDetail> {
   @override
   void initState() {
     super.initState();
-    init();
+    _init();
   }
 
-  void init() async {
+  // Initialize the page
+  void _init() async {
+    // Init shared preferences
+    await _initSharedPreferences();
+
     // Fetch the movie and the cast
     await _initMovie();
     await _initCast();
+
+    // Fetch the list of all favorite / watched movies id (from the shared preferences) if null, set it to an empty list by default
+    _favoriteMovies = _prefs.getStringList("favorite_movies") ?? [];
+    _watchedMovies = _prefs.getStringList("watched_movies") ?? [];
+
+    // Determine if the movie is in the favorite list (from the shared preferences)
+    _isFavorite = _favoriteMovies.contains(movieID.toString());
+
+    // Determine if the movie is in the watched list (from the shared preferences)
+    _isWatched = _watchedMovies.contains(movieID.toString());
   }
 
+  // Init shared preferences
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  // Fetch the movie ...
   Future<void> _initMovie() async {
     Movie movieFetched = await Movie.fetchMovieById(movieID);
     setState(() => movie = movieFetched);
   }
 
+  // ... and the cast
   Future<void> _initCast() async {
     APICastResponse apiCastResponse =
         await APICastResponse.fetchCastByMovieId(movieID);
     List<Cast> castFetched = apiCastResponse.cast;
     setState(() => cast = castFetched);
+  }
+
+  // Callbacks for the CTAs
+  void _handleFavoriteButtonPressed() async {
+    // If the movie is already in the favorite list, remove it, else add it
+    if (_isFavorite) {
+      _favoriteMovies.remove(movieID.toString());
+    } else {
+      _favoriteMovies.add(movieID.toString());
+    }
+
+    // Update the UI state dynamically
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+
+    // Save the list of all favorite movies id (in the shared preferences)
+    _prefs.setStringList("favorite_movies", _favoriteMovies);
+  }
+
+  void _handleWatchedButtonPressed() async {
+    // If the movie is already in the watched list, remove it, else add it
+    if (_isWatched) {
+      _watchedMovies.remove(movieID.toString());
+    } else {
+      _watchedMovies.add(movieID.toString());
+    }
+
+    // Update the UI state dynamically
+    setState(() {
+      _isWatched = !_isWatched;
+    });
+
+    // Save the list of all watched movies id (in the shared preferences)
+    _prefs.setStringList("watched_movies", _watchedMovies);
   }
 
   @override
@@ -227,20 +272,25 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderIsMovieFavorite() {
+    // Check if the movie is favorite or not to display the right icon
+    IconData icon = _isFavorite ? FeatherIcons.xCircle : FeatherIcons.heart;
+
     return TextButton(
-      // ignore: avoid_print
-      onPressed: () => print("Favorite button pressed"),
+      onPressed: () => _handleFavoriteButtonPressed(),
       child: Row(
         children: [
           Icon(
-            FeatherIcons.heart,
+            icon,
             color: BaseStyles.candy,
             size: MovieStyles.movieDefaultIconSize,
           ),
           // Add a space between the icon and the text
           const SizedBox(width: BaseStyles.spacing_1),
           Text(
-            "Add to your favorites",
+            // Check if the movie is favorite or not to display the right text
+            _isFavorite
+                ? "Remove from your favorites"
+                : "Add to your favorites",
             style: BaseStyles.boldSmallCandyText,
           ),
         ],
@@ -249,17 +299,21 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderIsMovieWatched() {
+    // Check if the movie is watched or not to display the right icon
+    IconData icon = _isWatched ? FeatherIcons.eye : FeatherIcons.eyeOff;
+
     return Row(
       children: [
         Icon(
-          FeatherIcons.eye,
+          icon,
           color: BaseStyles.lightBlue,
           size: MovieStyles.movieDefaultIconSize,
         ),
         // Add a space between the icon and the text
         const SizedBox(width: BaseStyles.spacing_1),
         Text(
-          "Watched",
+          // Check if the movie is watched or not to display the right text
+          _isWatched ? "Watched" : "Unwatched",
           style: BaseStyles.boldSmallText,
         ),
       ],
@@ -279,19 +333,24 @@ class MovieDetailState extends State<MovieDetail> {
   List<Widget> _buildCTASection() {
     List<Widget> ctas = [];
 
-    for (var i = 0; i < _ctaActions.length; i++) {
-      ctas.add(_ctaBuilder(_ctaActions[i], _ctaIcons[i]));
-      if (i != _ctaActions.length - 1) {
-        ctas.add(const SizedBox(width: BaseStyles.spacing_1));
-      }
-    }
+    // Build CTA buttons
+    ctas.add(_buildWatchedCTA());
+    // Add a space between the watched button and the trailer button
+    ctas.add(const SizedBox(width: BaseStyles.spacing_1));
+    ctas.add(_buildWatchTrailerCTA());
+    // Add a space between the watched button and the trailer button
+    ctas.add(const SizedBox(width: BaseStyles.spacing_1));
+    ctas.add(_buildShareCTA());
+
     return ctas;
   }
 
-  Widget _ctaBuilder(String action, Icon icon) {
+  Widget _buildWatchedCTA() {
+    // Check if the movie is watched or not to display the right icon
+    IconData icon = _isWatched ? FeatherIcons.eyeOff : FeatherIcons.eye;
+
     return TextButton(
-        // ignore: avoid_print
-        onPressed: () => print("Tapped"),
+        onPressed: () => _handleWatchedButtonPressed(),
         style: BaseStyles.ctaButtonStyle,
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -299,12 +358,69 @@ class MovieDetailState extends State<MovieDetail> {
           child: Row(
             children: [
               Text(
-                action,
+                // Check if the movie is watched or not to display the right text
+                _isWatched ? "Mark as unwatched" : "Mark as watched",
                 style: BaseStyles.boldSmallText,
               ),
               // Add a space between the icon and the text
               const SizedBox(width: BaseStyles.spacing_1),
-              icon,
+              Icon(
+                icon,
+                color: BaseStyles.lightBlue,
+                size: MovieStyles.movieCTAIconSize,
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget _buildWatchTrailerCTA() {
+    return TextButton(
+        // ignore: avoid_print
+        onPressed: () => print("Watch Trailer"),
+        style: BaseStyles.ctaButtonStyle,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: BaseStyles.spacing_1, horizontal: BaseStyles.spacing_2),
+          child: Row(
+            children: [
+              Text(
+                "Watch Trailer",
+                style: BaseStyles.boldSmallText,
+              ),
+              // Add a space between the icon and the text
+              const SizedBox(width: BaseStyles.spacing_1),
+              Icon(
+                FeatherIcons.externalLink,
+                color: BaseStyles.lightBlue,
+                size: MovieStyles.movieCTAIconSize,
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget _buildShareCTA() {
+    return TextButton(
+        // ignore: avoid_print
+        onPressed: () => print("Share"),
+        style: BaseStyles.ctaButtonStyle,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: BaseStyles.spacing_1, horizontal: BaseStyles.spacing_2),
+          child: Row(
+            children: [
+              Text(
+                "Share",
+                style: BaseStyles.boldSmallText,
+              ),
+              // Add a space between the icon and the text
+              const SizedBox(width: BaseStyles.spacing_1),
+              Icon(
+                FeatherIcons.share2,
+                color: BaseStyles.lightBlue,
+                size: MovieStyles.movieCTAIconSize,
+              ),
             ],
           ),
         ));

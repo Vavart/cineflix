@@ -1,5 +1,6 @@
 // Basic imports
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -25,6 +26,9 @@ class Search extends StatefulWidget {
 }
 
 class SearchState extends State<Search> {
+  // Shared preferences
+  late SharedPreferences _prefs;
+
   // Search query
   String searchQuery;
   SearchState(this.searchQuery);
@@ -40,6 +44,9 @@ class SearchState extends State<Search> {
   // List of movies to display after the search
   List<Movie> searchedMovies = [];
 
+  // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
+  List<String> _watchedMovies = [];
+
   // API url to get images
   final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
 
@@ -51,7 +58,19 @@ class SearchState extends State<Search> {
   }
 
   void init() async {
+    // Init shared preferences
+    await _initSharedPreferences();
+
+    // Init searched movies (from the API with the search query)
     await _initSearchedMovies();
+
+    // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
+    _watchedMovies = _prefs.getStringList("watched_movies") ?? [];
+  }
+
+  // Init shared preferences
+  Future<void> _initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
   Future<void> _initSearchedMovies() async {
@@ -61,22 +80,31 @@ class SearchState extends State<Search> {
         () => searchedMovies = apiSearchResponse.results.take(10).toList());
   }
 
+  void updateQuery(String newQuery) {
+    searchQuery = newQuery;
+    init();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: BaseStyles.primaryColor,
-        title: Text('Search : $searchQuery'),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.symmetric(
-              horizontal: BaseStyles.spacing_2, vertical: BaseStyles.spacing_4),
-          child: Column(
-            children: [
-              _renderFullSearchBar(),
-              _renderSearchedMovies(context),
-            ],
+    return RefreshIndicator(
+      onRefresh: () async => init(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: BaseStyles.primaryColor,
+          title: Text('Search : $searchQuery'),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.symmetric(
+                horizontal: BaseStyles.spacing_2,
+                vertical: BaseStyles.spacing_4),
+            child: Column(
+              children: [
+                _renderFullSearchBar(),
+                _renderSearchedMovies(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -108,7 +136,7 @@ class SearchState extends State<Search> {
               cursorColor: BaseStyles.white,
               style: BaseStyles.text,
               onSubmitted: (value) => {
-                    if (value.isNotEmpty) setState(() => searchQuery = value)
+                    if (value.isNotEmpty) setState(() => updateQuery(value))
                   }, // Update the search query if the user submit a new one and the field is not empty
               decoration: SearchStyles.searchBar),
         ),
@@ -225,7 +253,7 @@ class SearchState extends State<Search> {
     return Row(
       children: [
         _renderMovieComplexCardRating(index),
-        _renderMovieComplexCardWatchIcon(),
+        _renderMovieComplexCardWatchIcon(index),
       ],
     );
   }
@@ -252,12 +280,17 @@ class SearchState extends State<Search> {
     );
   }
 
-  Widget _renderMovieComplexCardWatchIcon() {
+  Widget _renderMovieComplexCardWatchIcon(index) {
+    //
+    IconData icon = _watchedMovies.contains(searchedMovies[index].id.toString())
+        ? FeatherIcons.eye
+        : FeatherIcons.eyeOff;
+
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
       child: Icon(
-        FeatherIcons.eye,
+        icon,
         color: BaseStyles.lightBlue,
       ),
     );
