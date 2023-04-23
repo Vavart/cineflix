@@ -91,6 +91,38 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
     setState(() => _watchedMoviesData = watchedMoviesFromAPI);
   }
 
+  // Callbacks for the CTAs
+  void _handleFavoriteButtonPressed(int movieIndex) async {
+    // If the movie is already in the favorite list, remove it, else add it
+    if (_favoriteMovies
+        .contains(_favoriteMoviesData[movieIndex].id.toString())) {
+      _favoriteMovies.remove(_favoriteMoviesData[movieIndex].id.toString());
+    } else {
+      _favoriteMovies.add(_favoriteMoviesData[movieIndex].id.toString());
+    }
+
+    // Update the UI state dynamically
+    _init();
+
+    // Save the list of all favorite movies id (in the shared preferences)
+    _prefs.setStringList("favorite_movies", _favoriteMovies);
+  }
+
+  void _handleWatchedButtonPressed(int movieIndex) async {
+    // If the movie is already in the watched list, remove it, else add it
+    if (_watchedMovies.contains(_watchedMoviesData[movieIndex].id.toString())) {
+      _watchedMovies.remove(_watchedMoviesData[movieIndex].id.toString());
+    } else {
+      _watchedMovies.add(_watchedMoviesData[movieIndex].id.toString());
+    }
+
+    // Update the UI state dynamically
+    _init();
+
+    // Save the list of all favorite movies id (in the shared preferences)
+    _prefs.setStringList("watched_movies", _watchedMovies);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -312,14 +344,13 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
   Widget _renderFavoriteMovieComplexCardTrashIcon(int index) {
     return TextButton(
-      // ignore: avoid_print
-      onPressed: () => print("Trash icon pressed for movie $index"),
+      onPressed: () => _handleFavoriteButtonPressed(index),
       style: BaseStyles.ctaButtonStyle,
       child: Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_2),
         child: Icon(
-          FeatherIcons.trash2,
+          FeatherIcons.xCircle,
           color: BaseStyles.candy,
         ),
       ),
@@ -497,14 +528,13 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
   Widget _renderWatchedMovieComplexCardTrashIcon(int index) {
     return TextButton(
-      // ignore: avoid_print
-      onPressed: () => print("Trash icon pressed for movie $index"),
+      onPressed: () => _handleWatchedButtonPressed(index),
       style: BaseStyles.ctaButtonStyle,
       child: Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_2),
         child: Icon(
-          FeatherIcons.trash2,
+          FeatherIcons.xCircle,
           color: BaseStyles.candy,
         ),
       ),
