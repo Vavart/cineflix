@@ -31,7 +31,7 @@ class APICastResponse {
       _$APICastResponseFromJson(json);
 
   // fetchTrendyMovies() is a static method that returns a Future<List<MovieCardSimple>> (the list of trendy movies as cards)
-  static Future<APICastResponse> fetchCast(int id) async {
+  static Future<APICastResponse> fetchCastByMovieId(int id) async {
     // Load .env file
     await dotenv.load(fileName: ".env");
 

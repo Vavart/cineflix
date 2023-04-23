@@ -8,7 +8,11 @@ import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
 // Pages imports
+import '../models/api_search_response.dart';
 import 'movie_detail.dart';
+
+// Models import
+import "package:cineflix/models/movie.dart";
 
 class Search extends StatefulWidget {
   // Search query
@@ -17,13 +21,13 @@ class Search extends StatefulWidget {
 
   @override
   // ignore: no_logic_in_create_state
-  createState() => _SearchState(searchQuery);
+  createState() => SearchState(searchQuery);
 }
 
-class _SearchState extends State<Search> {
+class SearchState extends State<Search> {
   // Search query
   String searchQuery;
-  _SearchState(this.searchQuery);
+  SearchState(this.searchQuery);
 
   // Search bar text field controller (to clear the field)
   final searchBarField = TextEditingController();
@@ -33,10 +37,28 @@ class _SearchState extends State<Search> {
     searchBarField.clear();
   }
 
+  // List of movies to display after the search
+  List<Movie> searchedMovies = [];
+
+  // API url to get images
+  final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
+
   @override
   void initState() {
     super.initState();
     searchBarField.text = searchQuery;
+    init();
+  }
+
+  void init() async {
+    await _initSearchedMovies();
+  }
+
+  Future<void> _initSearchedMovies() async {
+    APISearchResponse apiSearchResponse =
+        await APISearchResponse.fetchMovieBySearch(searchQuery);
+    setState(
+        () => searchedMovies = apiSearchResponse.results.take(10).toList());
   }
 
   @override
@@ -44,12 +66,12 @@ class _SearchState extends State<Search> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: BaseStyles.primaryColor,
-        title: Text(searchQuery),
+        title: Text('Search : $searchQuery'),
       ),
       body: SingleChildScrollView(
         child: Container(
           margin: const EdgeInsets.symmetric(
-              horizontal: BaseStyles.spacing_2, vertical: BaseStyles.spacing_6),
+              horizontal: BaseStyles.spacing_2, vertical: BaseStyles.spacing_4),
           child: Column(
             children: [
               _renderFullSearchBar(),
@@ -69,24 +91,8 @@ class _SearchState extends State<Search> {
   Widget _renderFullSearchBar() {
     return Column(
       children: [
-        _renderTextSearchBar(),
         _renderSearchBar(),
       ],
-    );
-  }
-
-  Widget _renderTextSearchBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_3, vertical: 0),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          "What are we watching today ?",
-          style: BaseStyles.text,
-          textAlign: TextAlign.left,
-        ),
-      ),
     );
   }
 
@@ -126,25 +132,8 @@ class _SearchState extends State<Search> {
   Widget _renderSearchedMovies(BuildContext context) {
     return Column(
       children: [
-        _renderSelectedMoviesTitle(), // Selected movies
         _renderSelectedMoviesList(context), // Selected movies list
       ],
-    );
-  }
-
-  // Render the Selected movies section title
-  Widget _renderSelectedMoviesTitle() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
-          BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          "Our selection",
-          style: BaseStyles.h2,
-          textAlign: TextAlign.left,
-        ),
-      ),
     );
   }
 
@@ -152,7 +141,7 @@ class _SearchState extends State<Search> {
     return Column(
       children: [
         // Render the 5 selected movies (for loop because ListView.builder doesn't work with Column (unbounded height issues))
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < searchedMovies.length; i++)
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 BaseStyles.spacing_3,
@@ -168,64 +157,81 @@ class _SearchState extends State<Search> {
   // Render the Selected movies section list : image + title + rating + description + watch/unwatch icon
   Widget _complexMovieCard(BuildContext context, int index) {
     return GestureDetector(
-      onTap: () => _navigationToMovieDetail(context, index),
+      onTap: () => _navigationToMovieDetail(context, searchedMovies[index].id),
       child: SizedBox(
         height: MovieStyles.complexMovieCardHeight,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
-            _renderMovieComplexCardImage(),
+            _renderMovieComplexCardImage(index),
             // Separator between the image and the info
             const SizedBox(width: BaseStyles.spacing_3),
-            _renderMovieComplexCardInfo(context),
+            _renderMovieComplexCardInfo(context, index),
           ],
         ),
       ),
     );
   }
 
-  Widget _renderMovieComplexCardImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-      child: Image.asset(
+  Widget _renderMovieComplexCardImage(int index) {
+    Image image;
+    if (searchedMovies[index].poster_path != null) {
+      image = Image.network(
+        _apiImageUrl + searchedMovies[index].poster_path!,
+        width: MovieStyles.movieCardImgWidth,
+        height: MovieStyles.movieCardImgHeight,
+        fit: BoxFit.cover,
+      );
+    } else {
+      image = Image.asset(
         "assets/images/no_movie_preview.png",
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
-      ),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+      child: image,
     );
   }
 
-  Widget _renderMovieComplexCardInfo(BuildContext context) {
+  Widget _renderMovieComplexCardInfo(BuildContext context, int index) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _renderMovieComplexCardTitle(),
-        _renderMovieComplexCardIcons(),
-        _renderMovieComplexCardDescription(context),
+        _renderMovieComplexCardTitle(index),
+        _renderMovieComplexCardIcons(index),
+        _renderMovieComplexCardDescription(context, index),
       ],
     );
   }
 
-  Widget _renderMovieComplexCardTitle() {
-    return Text(
-      textAlign: TextAlign.left,
-      searchQuery,
-      style: BaseStyles.boldText,
+  Widget _renderMovieComplexCardTitle(int index) {
+    return SizedBox(
+      width: MovieStyles.simpleMovieCardTitleWidth,
+      child: Text(
+        textAlign: TextAlign.left,
+        searchedMovies[index].original_title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: BaseStyles.boldText,
+      ),
     );
   }
 
-  Widget _renderMovieComplexCardIcons() {
+  Widget _renderMovieComplexCardIcons(int index) {
     return Row(
       children: [
-        _renderMovieComplexCardRating(),
+        _renderMovieComplexCardRating(index),
         _renderMovieComplexCardWatchIcon(),
       ],
     );
   }
 
-  Widget _renderMovieComplexCardRating() {
+  Widget _renderMovieComplexCardRating(int index) {
+    int rating = (searchedMovies[index].vote_average * 10).toInt();
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
@@ -238,7 +244,7 @@ class _SearchState extends State<Search> {
           // Add a space between the icon and the text
           const SizedBox(width: BaseStyles.spacing_1),
           Text(
-            "90%",
+            "$rating %",
             style: BaseStyles.boldSmallYellowText,
           ),
         ],
@@ -257,7 +263,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  Widget _renderMovieComplexCardDescription(BuildContext context) {
+  Widget _renderMovieComplexCardDescription(BuildContext context, int index) {
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
@@ -265,7 +271,7 @@ class _SearchState extends State<Search> {
           ? 200.0
           : MediaQuery.of(context).size.width * 0.6,
       child: Text(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nisl nisl ultricies.",
+        searchedMovies[index].overview,
         style: BaseStyles.smallText,
         textAlign: TextAlign.left,
 

@@ -47,7 +47,7 @@ class CineflixBottomNavgationBar {
 
   // Application pages list (to be displayed in the IndexedStack)
   static final List<Widget> pages = [
-    Movies(),
+    const Movies(),
     const Recommandation(),
     const Favorites(),
     const Profile(),

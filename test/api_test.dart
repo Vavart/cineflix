@@ -58,7 +58,7 @@ void main() {
   });
 
   test("test casting", () async {
-    APICastResponse apiCastResponse = await APICastResponse.fetchCast(603692);
+    APICastResponse apiCastResponse = await APICastResponse.fetchCastByMovieId(603692);
     List<Cast> cast = apiCastResponse.cast;
 
     // Tests
