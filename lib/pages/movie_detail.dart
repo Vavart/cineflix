@@ -127,6 +127,17 @@ class MovieDetailState extends State<MovieDetail> {
 
     // Save the list of all favorite movies id (in the shared preferences)
     _prefs.setStringList("favorite_movies", _favoriteMovies);
+
+    // Show a snackbar to inform the user that the movie has been added to the favorite list
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isFavorite
+              ? "${movie.original_title} has been added to your favorite list"
+              : "${movie.original_title} has been removed from your favorite list",
+        ),
+      ),
+    );
   }
 
   void _handleWatchedButtonPressed() async {
@@ -144,6 +155,19 @@ class MovieDetailState extends State<MovieDetail> {
 
     // Save the list of all watched movies id (in the shared preferences)
     _prefs.setStringList("watched_movies", _watchedMovies);
+
+    // Show a snackbar to inform the user that the movie has been added to the watched list
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: BaseStyles.candy,
+        content: Text(
+          _isWatched
+              ? "${movie.original_title} has been added to your watched list"
+              : "${movie.original_title} has been removed from your watched list",
+          style: BaseStyles.snackBarText,
+        ),
+      ),
+    );
   }
 
   // Get the movie video url (if it exists)

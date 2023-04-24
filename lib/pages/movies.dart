@@ -17,7 +17,6 @@ import 'package:cineflix/pages/search.dart';
 import 'package:cineflix/pages/movie_detail.dart';
 
 class Movies extends StatefulWidget {
-
   const Movies({super.key});
 
   @override
@@ -56,7 +55,6 @@ class MoviesState extends State<Movies> {
   void initState() {
     super.initState();
     init();
-
   }
 
   // Init method : render trendy movies and selected movies
@@ -104,9 +102,7 @@ class MoviesState extends State<Movies> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return LinearProgressIndicator(
-          backgroundColor: BaseStyles.darkShade_1,
-          color: BaseStyles.lightBlue
-      );
+          backgroundColor: BaseStyles.darkShade_1, color: BaseStyles.lightBlue);
     } else {
       return RefreshIndicator(
           onRefresh: () async => init(),
@@ -308,7 +304,7 @@ class MoviesState extends State<Movies> {
   Widget _renderSelectedMoviesTitle() {
     return Container(
       margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
-          BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
+          BaseStyles.spacing_2, BaseStyles.spacing_3, BaseStyles.spacing_1),
       child: SizedBox(
         width: double.infinity,
         child: Text(

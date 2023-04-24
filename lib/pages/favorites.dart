@@ -134,10 +134,13 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
     // Display a snackbar to provide feedback to the user (favorite added / removed) and allow him to undo
     final snackBar = SnackBar(
+      backgroundColor: BaseStyles.candy,
       content: Text(
-          "${_favoriteMoviesData[movieIndex].original_title} has been removed from your favorites"),
+          "${_favoriteMoviesData[movieIndex].original_title} has been removed from your favorites",
+          style: BaseStyles.snackBarText),
       behavior: SnackBarBehavior.floating,
       action: SnackBarAction(
+        textColor: BaseStyles.lightBlue,
         label: 'Undo',
         onPressed: () {
           // Add the deleted movie into the list of all favorite movies id
@@ -170,10 +173,13 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
     // Display a snackbar to provide feedback to the user (watched added / removed) and allow him to undo
     final snackBar = SnackBar(
+      backgroundColor: BaseStyles.candy,
       content: Text(
-          "${_watchedMoviesData[movieIndex].original_title} has been removed from your watch list"),
+          "${_watchedMoviesData[movieIndex].original_title} has been removed from your watch list",
+          style: BaseStyles.snackBarText),
       behavior: SnackBarBehavior.floating,
       action: SnackBarAction(
+        textColor: BaseStyles.darkBlue,
         label: 'Undo',
         onPressed: () {
           // Add the deleted movie into the list of all watched movies id
@@ -206,7 +212,7 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
             width: 100.0,
             child: CircularProgressIndicator(
               backgroundColor: BaseStyles.darkShade_1,
-              color: BaseStyles.lightBlue,
+              color: BaseStyles.darkBlue,
             ),
           ),
         ),

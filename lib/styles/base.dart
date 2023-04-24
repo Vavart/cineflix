@@ -102,6 +102,12 @@ class BaseStyles {
       fontWeight: FontWeight.w300,
       height: 1.6);
 
+  static TextStyle snackBarText = TextStyle(
+      fontFamily: fontFamily,
+      fontSize: smallTextSize,
+      color: primaryColor,
+      fontWeight: FontWeight.w700,
+      height: 1.6);
 
   // Buttons Styles
   static final ctaButtonStyle = ButtonStyle(
@@ -112,5 +118,4 @@ class BaseStyles {
       ),
     ),
   );
-  
 }
