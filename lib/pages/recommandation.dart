@@ -162,15 +162,18 @@ class RecommandationState extends State<Recommandation> {
 
   // Loader
   Widget _renderLoading() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        LinearProgressIndicator(
-          backgroundColor: BaseStyles.darkShade_1,
-          color: BaseStyles.lightBlue,
+    return Padding(
+      padding: const EdgeInsets.only(top: BaseStyles.spacing_10),
+      child: Center(
+        child: SizedBox(
+          height: 100.0,
+          width: 100.0,
+          child: CircularProgressIndicator(
+            backgroundColor: BaseStyles.darkShade_1,
+            color: BaseStyles.lightBlue,
+          ),
         ),
-      ],
+      ),
     );
   }
 

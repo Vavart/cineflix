@@ -76,6 +76,8 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   }
 
   void _init() async {
+    setState(() => _isLoading = true);
+
     // Init shared preferences
     await _initSharedPreferences();
 
@@ -84,8 +86,8 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
     _watchedMovies = _prefs.getStringList("watched_movies") ?? [];
 
     // Fetch the according movie data from the shared preferences
-    await _initFavoriteMovies();
     await _initWatchedMovies();
+    await _initFavoriteMovies();
 
     setState(() => _isLoading = false);
   }
@@ -117,35 +119,76 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   }
 
   // Callbacks for the CTAs
-  void _handleFavoriteButtonPressed(int movieIndex) async {
-    // If the movie is already in the favorite list, remove it, else add it
-    if (_favoriteMovies
-        .contains(_favoriteMoviesData[movieIndex].id.toString())) {
-      _favoriteMovies.remove(_favoriteMoviesData[movieIndex].id.toString());
-    } else {
-      _favoriteMovies.add(_favoriteMoviesData[movieIndex].id.toString());
-    }
+  void _handleRemoveFromFavorites(int movieIndex) async {
+    // Keep the movie id in case of undo
+    final String movieId = _favoriteMoviesData[movieIndex].id.toString();
 
-    // Update the UI state dynamically
-    _init();
+    // Remove the movie from the list of all favorite movies id
+    _favoriteMovies.remove(_favoriteMoviesData[movieIndex].id.toString());
 
     // Save the list of all favorite movies id (in the shared preferences)
     _prefs.setStringList("favorite_movies", _favoriteMovies);
-  }
-
-  void _handleWatchedButtonPressed(int movieIndex) async {
-    // If the movie is already in the watched list, remove it, else add it
-    if (_watchedMovies.contains(_watchedMoviesData[movieIndex].id.toString())) {
-      _watchedMovies.remove(_watchedMoviesData[movieIndex].id.toString());
-    } else {
-      _watchedMovies.add(_watchedMoviesData[movieIndex].id.toString());
-    }
 
     // Update the UI state dynamically
     _init();
 
-    // Save the list of all favorite movies id (in the shared preferences)
+    // Display a snackbar to provide feedback to the user (favorite added / removed) and allow him to undo
+    final snackBar = SnackBar(
+      content: Text(
+          "${_favoriteMoviesData[movieIndex].original_title} has been removed from your favorites"),
+      behavior: SnackBarBehavior.floating,
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          // Add the deleted movie into the list of all favorite movies id
+          _favoriteMovies.add(movieId.toString());
+
+          // Save the list of all favorite movies id (in the shared preferences)
+          _prefs.setStringList("favorite_movies", _favoriteMovies);
+
+          // Update the UI state dynamically
+          _init();
+        },
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _handleRemoveFromWatchList(int movieIndex) async {
+    // Keep the movie id in case of undo
+    final String movieId = _watchedMoviesData[movieIndex].id.toString();
+
+    // Remove the movie from the list of all watched movies id
+    _watchedMovies.remove(_watchedMoviesData[movieIndex].id.toString());
+
+    // Save the list of all watched movies id (in the shared preferences)
     _prefs.setStringList("watched_movies", _watchedMovies);
+
+    // Update the UI state dynamically
+    _init();
+
+    // Display a snackbar to provide feedback to the user (watched added / removed) and allow him to undo
+    final snackBar = SnackBar(
+      content: Text(
+          "${_watchedMoviesData[movieIndex].original_title} has been removed from your watch list"),
+      behavior: SnackBarBehavior.floating,
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          // Add the deleted movie into the list of all watched movies id
+          _watchedMovies.add(movieId.toString());
+
+          // Save the list of all watched movies id (in the shared preferences)
+          _prefs.setStringList("watched_movies", _watchedMovies);
+
+          // Update the UI state dynamically
+          _init();
+        },
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   /// *********************************************************************** ///
@@ -155,10 +198,23 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const LinearProgressIndicator();
+      return Padding(
+        padding: const EdgeInsets.only(top: BaseStyles.spacing_8),
+        child: Center(
+          child: SizedBox(
+            height: 100.0,
+            width: 100.0,
+            child: CircularProgressIndicator(
+              backgroundColor: BaseStyles.darkShade_1,
+              color: BaseStyles.lightBlue,
+            ),
+          ),
+        ),
+      );
     } else {
       return Scaffold(
         floatingActionButton: FloatingActionButton(
+          heroTag: "refresh",
           onPressed: () async {
             _startAnimation();
             _init();
@@ -376,7 +432,9 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
   Widget _renderFavoriteMovieComplexCardTrashIcon(int index) {
     return TextButton(
-      onPressed: () => _handleFavoriteButtonPressed(index),
+      onPressed: () {
+        _handleRemoveFromFavorites(index);
+      },
       style: BaseStyles.ctaButtonStyle,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -560,13 +618,13 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
   Widget _renderWatchedMovieComplexCardTrashIcon(int index) {
     return TextButton(
-      onPressed: () => _handleWatchedButtonPressed(index),
+      onPressed: () => _handleRemoveFromWatchList(index),
       style: BaseStyles.ctaButtonStyle,
       child: Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_2),
         child: Icon(
-          FeatherIcons.xCircle,
+          FeatherIcons.eyeOff,
           color: BaseStyles.candy,
         ),
       ),

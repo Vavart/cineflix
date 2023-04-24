@@ -17,6 +17,7 @@ import 'package:cineflix/pages/search.dart';
 import 'package:cineflix/pages/movie_detail.dart';
 
 class Movies extends StatefulWidget {
+
   const Movies({super.key});
 
   @override
@@ -55,6 +56,7 @@ class MoviesState extends State<Movies> {
   void initState() {
     super.initState();
     init();
+
   }
 
   // Init method : render trendy movies and selected movies

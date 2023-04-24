@@ -6,7 +6,7 @@ import 'utils.dart';
 
 class BaseStyles {
   // Typography
-  static const String _fontFamily = 'Comfortaa';
+  static const String fontFamily = 'Comfortaa';
 
   // Sizes
   static const h1Size = 32.0;
@@ -40,63 +40,63 @@ class BaseStyles {
 
   // Text Styles
   static TextStyle h1 = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: h1Size,
       color: white,
       fontWeight: FontWeight.w300,
       height: 1.6);
 
   static TextStyle h2 = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: h2Size,
       color: white,
       fontWeight: FontWeight.w700,
       height: 1.6);
 
   static TextStyle text = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: textSize,
       color: white,
       fontWeight: FontWeight.w300,
       height: 1.6);
 
   static TextStyle smallText = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: smallTextSize,
       color: white,
       fontWeight: FontWeight.w300,
       height: 1.6);
 
   static TextStyle boldText = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: textSize,
       color: white,
       fontWeight: FontWeight.w700,
       height: 1.6);
 
   static TextStyle boldSmallText = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: smallTextSize,
       color: white,
       fontWeight: FontWeight.w700,
       height: 1.6);
 
   static TextStyle boldSmallYellowText = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: smallTextSize,
       color: yellowStar,
       fontWeight: FontWeight.w700,
       height: 1.6);
 
   static TextStyle boldSmallCandyText = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: smallTextSize,
       color: candy,
       fontWeight: FontWeight.w700,
       height: 1.6);
 
   static TextStyle placeholder = TextStyle(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       fontSize: textSize,
       color: darkShade_2,
       fontWeight: FontWeight.w300,
