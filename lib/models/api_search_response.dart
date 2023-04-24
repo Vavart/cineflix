@@ -38,10 +38,8 @@ class APISearchResponse {
     // Get variables from .env file
     var apiKey = dotenv.env['API_KEY'];
 
-    var uri = await Endpoint.movieUri("/search/movie", queryParameters: {
-      "api_key": apiKey,
-      "query": query
-    });
+    var uri = await Endpoint.movieUri("/search/movie",
+        queryParameters: {"api_key": apiKey, "query": query});
 
     final resp = await http.get(uri);
 
@@ -71,5 +69,45 @@ class APISearchResponse {
 
     return APISearchResponse.fromJson(json.decode(resp.body));
   }
-}
 
+  static Future<APISearchResponse> fetchTopRatedMovies() async {
+    // Load .env file
+    await dotenv.load(fileName: ".env");
+
+    // Get variables from .env file
+    var apiKey = dotenv.env['API_KEY'];
+
+    var uri = await Endpoint.movieUri("/movie/top_rated", queryParameters: {
+      "api_key": apiKey,
+    });
+
+    final resp = await http.get(uri);
+
+    if (resp.statusCode != 200) {
+      throw (resp.body);
+    }
+
+    return APISearchResponse.fromJson(json.decode(resp.body));
+  }
+
+  static Future<APISearchResponse> fetchSimilarMovies(int id) async {
+    // Load .env file
+    await dotenv.load(fileName: ".env");
+
+    // Get variables from .env file
+    var apiKey = dotenv.env['API_KEY'];
+
+    var uri =
+        await Endpoint.movieUri("/movie/$id/recommendations", queryParameters: {
+      "api_key": apiKey,
+    });
+
+    final resp = await http.get(uri);
+
+    if (resp.statusCode != 200) {
+      throw (resp.body);
+    }
+
+    return APISearchResponse.fromJson(json.decode(resp.body));
+  }
+}

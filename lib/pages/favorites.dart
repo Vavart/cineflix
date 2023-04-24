@@ -41,6 +41,17 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   // Is loading
   bool _isLoading = true;
 
+  /// ***************************** Animation ***************************** ///
+
+  // Animation variables (init in the initState)
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  void _startAnimation() {
+    _animationController.reset();
+    _animationController.animateTo(1.0, duration: const Duration(seconds: 1));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +59,20 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
 
     // Tab controller
     _tabController = TabController(length: 2, vsync: this);
+
+    // Animation
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+
+    _animation = Tween<double>(
+      begin: 0.0,
+      end: 1,
+    ).animate(_animationController)
+      ..addListener(() {
+        setState(() {});
+      });
   }
 
   void _init() async {
@@ -123,12 +148,25 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
     _prefs.setStringList("watched_movies", _watchedMovies);
   }
 
+  /// *********************************************************************** ///
+  /// ***************************** Render page ***************************** ///
+  /// *********************************************************************** ///
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const CircularProgressIndicator();
+      return const LinearProgressIndicator();
     } else {
       return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            _startAnimation();
+            _init();
+          },
+          backgroundColor: BaseStyles.darkBlue,
+          child: RotationTransition(
+              turns: _animation, child: const Icon(FeatherIcons.refreshCw)),
+        ),
         body: Padding(
           padding: const EdgeInsets.only(top: BaseStyles.spacing_6),
           child: Column(
@@ -150,19 +188,13 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
               ),
               Expanded(
                 child: TabBarView(controller: _tabController, children: [
-                  RefreshIndicator(
-                    onRefresh: () async => _init(),
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: _renderFavoriteMoviesList(context),
-                    ),
+                  SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: _renderFavoriteMoviesList(context),
                   ),
-                  RefreshIndicator(
-                    onRefresh: () async => _init(),
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: _renderWatchedMoviesList(context),
-                    ),
+                  SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: _renderWatchedMoviesList(context),
                   ),
                 ]),
               ),

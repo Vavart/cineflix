@@ -6,6 +6,8 @@ import 'package:cineflix/models/api_search_response.dart';
 import 'package:cineflix/models/api_cast_response.dart';
 import 'package:cineflix/models/cast.dart';
 import 'package:cineflix/models/movie.dart';
+import 'package:cineflix/models/api_video_response.dart';
+import 'package:cineflix/models/video.dart';
 
 // Test
 void main() {
@@ -58,7 +60,8 @@ void main() {
   });
 
   test("test casting", () async {
-    APICastResponse apiCastResponse = await APICastResponse.fetchCastByMovieId(603692);
+    APICastResponse apiCastResponse =
+        await APICastResponse.fetchCastByMovieId(603692);
     List<Cast> cast = apiCastResponse.cast;
 
     // Tests
@@ -75,5 +78,26 @@ void main() {
     // Tests
     expect(movie.backdrop_path, isNotNull);
     expect(movie.backdrop_path, "/h8gHn0OzBoaefsYseUByqsmEDMY.jpg");
+  });
+
+  test("test get videos", () async {
+    // Get videos of Mario movie
+    APIVideoResponse apiVideoResponse =
+        await APIVideoResponse.fetchFirstVideoFromMovieID(502356);
+    List<Video> videos = apiVideoResponse.results;
+    List<Video> filteredVideos = videos.where((video) => video.site == "YouTube" && video.type == "Trailer" && video.official == true).toList();
+
+    // Tests
+    // We want the vidao that is :
+    // - a trailer
+    // - on youtube
+    // - official
+
+    for (var video in filteredVideos) {
+      expect(video.site, "YouTube");
+      expect(video.type, "Trailer");
+      expect(video.official, true);
+    }
+
   });
 }

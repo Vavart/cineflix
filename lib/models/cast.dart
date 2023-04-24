@@ -24,6 +24,4 @@ class Cast {
 
   // This is the part where we convert the JSON to a Dart object
   factory Cast.fromJson(Map<String, dynamic> json) => _$CastFromJson(json);
-
-  // fetchTrendyMovies() is a static method that returns a Future<List<MovieCardSimple>> (the list of trendy movies as cards)
 }

@@ -101,7 +101,10 @@ class MoviesState extends State<Movies> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const CircularProgressIndicator();
+      return LinearProgressIndicator(
+          backgroundColor: BaseStyles.darkShade_1,
+          color: BaseStyles.lightBlue
+      );
     } else {
       return RefreshIndicator(
           onRefresh: () async => init(),

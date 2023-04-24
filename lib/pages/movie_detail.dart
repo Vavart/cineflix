@@ -1,6 +1,9 @@
 // Basic imports
+import 'package:cineflix/models/api_video_response.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -11,6 +14,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:cineflix/models/movie.dart';
 import 'package:cineflix/models/api_cast_response.dart';
 import 'package:cineflix/models/cast.dart';
+import 'package:cineflix/models/video.dart';
 
 class MovieDetail extends StatefulWidget {
   // Movie ID
@@ -36,6 +40,9 @@ class MovieDetailState extends State<MovieDetail> {
   // Usefull variables for the UI state of the page (favorite / watched state) (will be set from the shared preferences)
   bool _isFavorite = false;
   bool _isWatched = false;
+
+  // String containing the movie video url (will be fetched from the API)
+  String _videoUrl = "";
 
   // Constructor
   MovieDetailState(this.movieID);
@@ -69,9 +76,10 @@ class MovieDetailState extends State<MovieDetail> {
     // Init shared preferences
     await _initSharedPreferences();
 
-    // Fetch the movie and the cast
+    // Fetch the movie, the cast and the url of the movie video
     await _initMovie();
     await _initCast();
+    await _getMovieVideoUrl();
 
     // Fetch the list of all favorite / watched movies id (from the shared preferences) if null, set it to an empty list by default
     _favoriteMovies = _prefs.getStringList("favorite_movies") ?? [];
@@ -138,6 +146,34 @@ class MovieDetailState extends State<MovieDetail> {
     _prefs.setStringList("watched_movies", _watchedMovies);
   }
 
+  // Get the movie video url (if it exists)
+  Future<void> _getMovieVideoUrl() async {
+    APIVideoResponse apiVideoResponse =
+        await APIVideoResponse.fetchFirstVideoFromMovieID(movieID);
+    List<Video> videos = apiVideoResponse.results;
+    List<Video> filteredVideos = videos
+        .where((video) =>
+            video.site == "YouTube" &&
+            video.type == "Trailer" &&
+            video.official == true)
+        .toList();
+
+    // Return the first video url if it exists, else return an empty string
+    setState(() {
+      _videoUrl = filteredVideos.isNotEmpty
+          ? "https://www.youtube.com/watch?v=${filteredVideos[0].key}"
+          : "";
+    });
+  }
+
+  // Launch movie trailer (when it's available)
+  Future<void> _launchUrl(String url) async {
+    Uri trailerUrl = Uri.parse(url);
+    if (!await launchUrl(trailerUrl)) {
+      throw Exception('Could not launch $trailerUrl');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,10 +205,10 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieIllustration() {
-    ImageProvider image =  const AssetImage(
-        "assets/images/no_movie_illustration_preview.png",
-      );
-      
+    ImageProvider image = const AssetImage(
+      "assets/images/no_movie_illustration_preview.png",
+    );
+
     if (movie.poster_path != null) {
       image = NetworkImage(
         _apiImageUrl + movie.poster_path!,
@@ -377,9 +413,14 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _buildWatchTrailerCTA() {
+    // If there is no videos available, we don't display the button
+    if (_videoUrl == "") {
+      return const SizedBox(
+        width: BaseStyles.spacing_3,
+      );
+    }
     return TextButton(
-        // ignore: avoid_print
-        onPressed: () => print("Watch Trailer"),
+        onPressed: () => _launchUrl(_videoUrl),
         style: BaseStyles.ctaButtonStyle,
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -404,8 +445,8 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _buildShareCTA() {
     return TextButton(
-        // ignore: avoid_print
-        onPressed: () => print("Share"),
+        onPressed: () => Share.share(
+            "Check out this movie: ${movie.original_title}, it seems to be a good one! $_videoUrl"),
         style: BaseStyles.ctaButtonStyle,
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -493,16 +534,15 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderActorCardPicture(int index) {
-
     ImageProvider image = const AssetImage(
-        "assets/images/no_movie_preview.png",
+      "assets/images/no_movie_preview.png",
     );
-    
+
     if (cast[index].profile_path != null) {
       image = NetworkImage(
         _apiImageUrl + cast[index].profile_path!,
       );
-    } 
+    }
 
     return Container(
       width: MovieStyles.actorCardImgWidth,
