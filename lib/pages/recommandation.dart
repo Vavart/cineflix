@@ -387,7 +387,7 @@ class RecommandationState extends State<Recommandation> {
         padding: const EdgeInsets.symmetric(
             vertical: BaseStyles.spacing_2, horizontal: BaseStyles.spacing_3),
         child: Text(
-          "Suggest me a movie",
+          "Suggest a movie",
           style: BaseStyles.text,
         ),
       ),

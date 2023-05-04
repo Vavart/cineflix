@@ -105,7 +105,7 @@ class BaseStyles {
   static TextStyle snackBarText = TextStyle(
       fontFamily: fontFamily,
       fontSize: smallTextSize,
-      color: primaryColor,
+      color: white,
       fontWeight: FontWeight.w700,
       height: 1.6);
 

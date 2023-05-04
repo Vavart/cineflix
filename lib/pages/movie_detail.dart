@@ -131,10 +131,12 @@ class MovieDetailState extends State<MovieDetail> {
     // Show a snackbar to inform the user that the movie has been added to the favorite list
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: BaseStyles.darkShade_1,
         content: Text(
           _isFavorite
               ? "${movie.original_title} has been added to your favorite list"
               : "${movie.original_title} has been removed from your favorite list",
+          style: BaseStyles.snackBarText,
         ),
       ),
     );
@@ -159,7 +161,7 @@ class MovieDetailState extends State<MovieDetail> {
     // Show a snackbar to inform the user that the movie has been added to the watched list
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: BaseStyles.candy,
+        backgroundColor: BaseStyles.darkShade_1,
         content: Text(
           _isWatched
               ? "${movie.original_title} has been added to your watched list"
