@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -44,6 +45,9 @@ class MovieDetailState extends State<MovieDetail> {
   // String containing the movie video url (will be fetched from the API)
   String _videoUrl = "";
 
+  // Youtube utils
+  late YoutubePlayerController _youtubePlayerController;
+
   // Constructor
   MovieDetailState(this.movieID);
 
@@ -80,6 +84,16 @@ class MovieDetailState extends State<MovieDetail> {
     await _initMovie();
     await _initCast();
     await _getMovieVideoUrl();
+
+    // Youtube utils
+    final videoID = YoutubePlayer.convertUrlToId(_videoUrl);
+    _youtubePlayerController = YoutubePlayerController(
+      initialVideoId: videoID ?? "",
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+      ),
+    );
 
     // Fetch the list of all favorite / watched movies id (from the shared preferences) if null, set it to an empty list by default
     _favoriteMovies = _prefs.getStringList("favorite_movies") ?? [];
@@ -231,6 +245,35 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieIllustration() {
+    // If there is a video url, display a video player, else display a poster image
+    if (_videoUrl.isNotEmpty) {
+      return _renderMovieVideo();
+    } else {
+      return _renderMoviePoster();
+    }
+  }
+
+  Widget _renderMovieVideo() {
+    return YoutubePlayer(
+      controller: _youtubePlayerController,
+      showVideoProgressIndicator: true,
+      bottomActions: [
+        CurrentPosition(),
+        ProgressBar(
+            isExpanded: true,
+            colors: ProgressBarColors(
+              playedColor: BaseStyles.lightBlue,
+              handleColor: BaseStyles.lightBlue,
+              bufferedColor: BaseStyles.lightBlue.withOpacity(0.5),
+            )),
+        RemainingDuration(),
+        FullScreenButton(),
+      ],
+    );
+  }
+
+  Widget _renderMoviePoster() {
+    // If there is no poster image, display a placeholder image
     ImageProvider image = const AssetImage(
       "assets/images/no_movie_illustration_preview.png",
     );

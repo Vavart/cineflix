@@ -126,19 +126,22 @@ class MoviesState extends State<Movies> {
   }
 
   Widget _renderPage(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-          top: BaseStyles.spacing_6, bottom: BaseStyles.spacing_6),
-      child: Column(
-        children: [
-          _renderAppTitle(),
-          StickyHeader(
-              header: _renderSearchBar(context),
-              content: Column(children: [
-                _renderTrendySection(),
-                _renderSelectedSection(context),
-              ])),
-        ],
+    return GestureDetector(
+      onTap: FocusScope.of(context).unfocus,
+      child: Padding(
+        padding: const EdgeInsets.only(
+            top: BaseStyles.spacing_6, bottom: BaseStyles.spacing_6),
+        child: Column(
+          children: [
+            _renderAppTitle(),
+            StickyHeader(
+                header: _renderSearchBar(context),
+                content: Column(children: [
+                  _renderTrendySection(),
+                  _renderSelectedSection(context),
+                ])),
+          ],
+        ),
       ),
     );
   }
@@ -149,9 +152,12 @@ class MoviesState extends State<Movies> {
 
   // Render methods
   Widget _renderAppTitle() {
-    return Text(
-      "Cineflix",
-      style: BaseStyles.appTitle,
+    return Container(
+      margin: const EdgeInsets.only(top: BaseStyles.spacing_2),
+      child: Text(
+        "Cineflix",
+        style: BaseStyles.appTitle,
+      ),
     );
   }
 
@@ -167,14 +173,27 @@ class MoviesState extends State<Movies> {
                 cursorColor: BaseStyles.white,
                 style: BaseStyles.text,
                 onSubmitted: (value) => {
-                      if (value.isNotEmpty) _navigationToSearchedMovies(context)
+                      if (value.isNotEmpty)
+                        {
+                          // Navigate to the searched movies page
+                          _navigationToSearchedMovies(context),
+
+                          // Lose focus on the search bar
+                          FocusScope.of(context).unfocus,
+                        }
                     }, // Check if the search bar is not empty to navigate to the searched movies page
                 decoration: InputDecoration(
                     // Icon
                     prefixIcon: IconButton(
                       icon: const Icon(FeatherIcons.search),
                       color: BaseStyles.white,
-                      onPressed: () => _navigationToSearchedMovies(context),
+                      onPressed: () => {
+                        // Navigate to the searched movies page
+                        _navigationToSearchedMovies(context),
+
+                        // Lose focus on the search bar
+                        FocusScope.of(context).unfocus,
+                      },
                     ),
                     prefixIconColor: BaseStyles.white,
 
