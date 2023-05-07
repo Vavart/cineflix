@@ -367,14 +367,17 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieHeaderActionsInfo() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _renderIsMovieFavorite(),
-        // Add a space between the favorite button and the watched button
-        const SizedBox(width: BaseStyles.spacing_3),
-        _renderIsMovieWatched(),
-      ],
+    return Container(
+      margin: const EdgeInsets.only(top: BaseStyles.spacing_3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _renderIsMovieFavorite(),
+          // Add a space between the favorite button and the watched button
+          const SizedBox(width: BaseStyles.spacing_3),
+          _renderIsMovieWatched(),
+        ],
+      ),
     );
   }
 
@@ -409,31 +412,31 @@ class MovieDetailState extends State<MovieDetail> {
     // Check if the movie is watched or not to display the right icon
     IconData icon = _isWatched ? FeatherIcons.checkCircle : FeatherIcons.eyeOff;
 
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: BaseStyles.lightBlue,
-          size: MovieStyles.movieDefaultIconSize,
-        ),
-        // Add a space between the icon and the text
-        const SizedBox(width: BaseStyles.spacing_1),
-        Text(
-          // Check if the movie is watched or not to display the right text
-          _isWatched ? "Watched" : "Unwatched",
-          style: BaseStyles.boldSmallText,
-        ),
-      ],
+    return TextButton(
+      onPressed: () => _handleWatchedButtonPressed(),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: BaseStyles.lightBlue,
+            size: MovieStyles.movieDefaultIconSize,
+          ),
+          // Add a space between the icon and the text
+          const SizedBox(width: BaseStyles.spacing_1),
+          Text(
+            // Check if the movie is watched or not to display the right text
+            _isWatched ? "Mark as unwatched" : "Mark as watched",
+            style: BaseStyles.boldSmallText,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _renderCTAs() {
-    return Container(
-      margin: const EdgeInsets.only(top: BaseStyles.spacing_4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _buildCTASection(),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _buildCTASection(),
     );
   }
 
@@ -441,44 +444,12 @@ class MovieDetailState extends State<MovieDetail> {
     List<Widget> ctas = [];
 
     // Build CTA buttons
-    ctas.add(_buildWatchedCTA());
-    // Add a space between the watched button and the trailer button
-    ctas.add(const SizedBox(width: BaseStyles.spacing_1));
     ctas.add(_buildWatchTrailerCTA());
-    // Add a space between the watched button and the trailer button
-    ctas.add(const SizedBox(width: BaseStyles.spacing_1));
+    // Add a space between the youtube trailer button and the share button
+    ctas.add(const SizedBox(width: BaseStyles.spacing_3));
     ctas.add(_buildShareCTA());
 
     return ctas;
-  }
-
-  Widget _buildWatchedCTA() {
-    // Check if the movie is watched or not to display the right icon
-    IconData icon = _isWatched ? FeatherIcons.eyeOff : FeatherIcons.checkCircle;
-
-    return TextButton(
-        onPressed: () => _handleWatchedButtonPressed(),
-        style: BaseStyles.ctaButtonStyle,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              vertical: BaseStyles.spacing_1, horizontal: BaseStyles.spacing_2),
-          child: Row(
-            children: [
-              Text(
-                // Check if the movie is watched or not to display the right text
-                _isWatched ? "Mark as unwatched" : "Mark as watched",
-                style: BaseStyles.boldSmallText,
-              ),
-              // Add a space between the icon and the text
-              const SizedBox(width: BaseStyles.spacing_1),
-              Icon(
-                icon,
-                color: BaseStyles.lightBlue,
-                size: MovieStyles.movieCTAIconSize,
-              ),
-            ],
-          ),
-        ));
   }
 
   Widget _buildWatchTrailerCTA() {
@@ -497,7 +468,7 @@ class MovieDetailState extends State<MovieDetail> {
           child: Row(
             children: [
               Text(
-                "Watch Trailer",
+                "Watch it on Youtube",
                 style: BaseStyles.boldSmallText,
               ),
               // Add a space between the icon and the text
@@ -540,7 +511,7 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _renderMovieSynopsis() {
     return Container(
-      margin: const EdgeInsets.only(top: BaseStyles.spacing_4),
+      margin: const EdgeInsets.only(top: BaseStyles.spacing_3),
       child: Padding(
         padding: const EdgeInsets.all(BaseStyles.spacing_3),
         child: Text(

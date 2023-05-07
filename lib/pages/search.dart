@@ -50,6 +50,9 @@ class SearchState extends State<Search> {
   // API url to get images
   final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
 
+  // Is loading
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +69,8 @@ class SearchState extends State<Search> {
 
     // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
     _watchedMovies = _prefs.getStringList("watched_movies") ?? [];
+
+    setState(() => isLoading = false);
   }
 
   // Init shared preferences
@@ -87,9 +92,22 @@ class SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async => init(),
-      child: Scaffold(
+    if (isLoading) {
+      return Padding(
+        padding: const EdgeInsets.only(top: BaseStyles.spacing_8),
+        child: Center(
+          child: SizedBox(
+            height: 100.0,
+            width: 100.0,
+            child: CircularProgressIndicator(
+              backgroundColor: BaseStyles.darkShade_1,
+              color: BaseStyles.darkBlue,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Scaffold(
         appBar: AppBar(
           backgroundColor: BaseStyles.primaryColor,
           title: Text('Search : $searchQuery'),
@@ -109,8 +127,8 @@ class SearchState extends State<Search> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   /// ********************************************************************************* ///
@@ -131,7 +149,14 @@ class SearchState extends State<Search> {
               cursorColor: BaseStyles.white,
               style: BaseStyles.text,
               onSubmitted: (value) => {
-                    if (value.isNotEmpty) setState(() => updateQuery(value))
+                    if (value.isNotEmpty)
+                      {
+                        // Refresh the page with the new search query
+                        setState(() => updateQuery(value)),
+
+                        // Lose the focus on the search bar
+                        FocusScope.of(context).unfocus(),
+                      }
                   }, // Update the search query if the user submit a new one and the field is not empty
               decoration: InputDecoration(
                   // Icon
@@ -140,7 +165,11 @@ class SearchState extends State<Search> {
                     color: BaseStyles.white,
                     onPressed: () {
                       if (searchBarField.text.isNotEmpty) {
+                        // Refresh the page with the new search query
                         setState(() => updateQuery(searchBarField.text));
+
+                        // Lose the focus on the search bar
+                        FocusScope.of(context).unfocus();
                       }
                     },
                   ),
