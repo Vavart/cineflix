@@ -561,7 +561,7 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _renderActorCardPicture(int index) {
     ImageProvider image = const AssetImage(
-      "assets/images/no_movie_preview.png",
+      "assets/images/no_actor_preview.png",
     );
 
     if (cast[index].profile_path != null) {

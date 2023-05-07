@@ -252,11 +252,15 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
                 child: TabBarView(controller: _tabController, children: [
                   SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    child: _renderFavoriteMoviesList(context),
+                    child: _favoriteMovies.isEmpty
+                        ? _renderNoFavoritesText()
+                        : _renderFavoriteMoviesList(context),
                   ),
                   SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    child: _renderWatchedMoviesList(context),
+                    child: _watchedMovies.isEmpty
+                        ? _renderNoWatchedText()
+                        : _renderWatchedMoviesList(context),
                   ),
                 ]),
               ),
@@ -265,6 +269,49 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
         ),
       );
     }
+  }
+
+  /// *********************************************************************************************** ///
+  /// ***************************** Render no favorites / watched texts ***************************** ///
+  /// *********************************************************************************************** ///
+
+  Widget _renderNoFavoritesText() {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_10),
+      child: Row(
+        children: [
+          // Flexible to make the text wrap if the search query is too long
+          Flexible(
+            child: Text(
+              "You didn't add any movie to your favorites 😢\n\nTry to search for a movie you love !",
+              style: BaseStyles.text,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderNoWatchedText() {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Flexible to make the text wrap if the search query is too long
+          Flexible(
+            child: Text(
+              "You didn't add any movie to your watched list 😢\n\nTry to search for a movie !",
+              style: BaseStyles.text,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// ******************************************************************************** ///
