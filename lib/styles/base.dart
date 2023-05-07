@@ -39,6 +39,13 @@ class BaseStyles {
   static Color candy = Utils.hexToColor("FFBCD9");
 
   // Text Styles
+  static TextStyle appTitle = TextStyle(
+      fontFamily: fontFamily,
+      fontSize: h1Size,
+      color: lightBlue,
+      fontWeight: FontWeight.w700,
+      height: 1.6);
+
   static TextStyle h1 = TextStyle(
       fontFamily: fontFamily,
       fontSize: h1Size,

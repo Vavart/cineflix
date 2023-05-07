@@ -1,6 +1,7 @@
 // Basic imports
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -130,9 +131,13 @@ class MoviesState extends State<Movies> {
           top: BaseStyles.spacing_6, bottom: BaseStyles.spacing_6),
       child: Column(
         children: [
-          _renderFullSearchBar(context),
-          _renderTrendySection(),
-          _renderSelectedSection(context),
+          _renderAppTitle(),
+          StickyHeader(
+              header: _renderSearchBar(context),
+              content: Column(children: [
+                _renderTrendySection(),
+                _renderSelectedSection(context),
+              ])),
         ],
       ),
     );
@@ -143,34 +148,17 @@ class MoviesState extends State<Movies> {
   /// ********************************************************************************* ///
 
   // Render methods
-  Widget _renderFullSearchBar(BuildContext context) {
-    return Column(
-      children: [
-        _renderTextSearchBar(),
-        _renderSearchBar(context),
-      ],
-    );
-  }
-
-  Widget _renderTextSearchBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_3, vertical: 0),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          "What are we watching today ?",
-          style: BaseStyles.text,
-          textAlign: TextAlign.left,
-        ),
-      ),
+  Widget _renderAppTitle() {
+    return Text(
+      "Cineflix",
+      style: BaseStyles.appTitle,
     );
   }
 
   Widget _renderSearchBar(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_3),
+      margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
+          BaseStyles.spacing_6, BaseStyles.spacing_3, BaseStyles.spacing_3),
       child: Row(children: [
         Flexible(
             child: TextField(

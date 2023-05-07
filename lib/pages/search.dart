@@ -1,6 +1,7 @@
 // Basic imports
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -76,7 +77,7 @@ class SearchState extends State<Search> {
     APISearchResponse apiSearchResponse =
         await APISearchResponse.fetchMovieBySearch(searchQuery);
     setState(
-        () => searchedMovies = apiSearchResponse.results.take(10).toList());
+        () => searchedMovies = apiSearchResponse.results.take(15).toList());
   }
 
   void updateQuery(String newQuery) {
@@ -100,8 +101,10 @@ class SearchState extends State<Search> {
                 vertical: BaseStyles.spacing_4),
             child: Column(
               children: [
-                _renderFullSearchBar(),
-                _renderSearchedMovies(context),
+                StickyHeader(
+                  header: _renderSearchBar(),
+                  content: _renderSearchedMovies(context),
+                )
               ],
             ),
           ),
@@ -115,13 +118,6 @@ class SearchState extends State<Search> {
   /// ********************************************************************************* ///
 
   // Render methods
-  Widget _renderFullSearchBar() {
-    return Column(
-      children: [
-        _renderSearchBar(),
-      ],
-    );
-  }
 
   Widget _renderSearchBar() {
     return Container(
@@ -199,11 +195,32 @@ class SearchState extends State<Search> {
   /// ********************************************************************************** ///
 
   Widget _renderSearchedMovies(BuildContext context) {
-    return Column(
-      children: [
-        _renderSelectedMoviesList(context), // Selected movies list
-      ],
-    );
+    // If the searched movies list is empty, display a message
+    if (searchedMovies.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_3),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Flexible to make the text wrap if the search query is too long
+            Flexible(
+              child: Text(
+                "We couldn't find any movies for $searchQuery 😢\n\nTry another search !",
+                style: BaseStyles.text,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Column(
+        children: [
+          _renderSelectedMoviesList(context), // Selected movies list
+        ],
+      );
+    }
   }
 
   Widget _renderSelectedMoviesList(BuildContext context) {
