@@ -61,6 +61,9 @@ class SearchState extends State<Search> {
   }
 
   void init() async {
+
+    setState(() => isLoading = true);
+
     // Init shared preferences
     await _initSharedPreferences();
 
