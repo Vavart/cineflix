@@ -27,8 +27,7 @@ dev_dependencies:
   json_serializable: ^6.6.1
 
 flutter_native_splash:
-  # color: "#192C32"
-  background_image: assets/splashscreen/splashscreen.png
+  image: assets/splashscreen/splashscreen.png
   android: true
   ios: true
 

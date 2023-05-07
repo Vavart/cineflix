@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
-import 'package:cineflix/styles/search.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
@@ -138,17 +137,59 @@ class SearchState extends State<Search> {
               onSubmitted: (value) => {
                     if (value.isNotEmpty) setState(() => updateQuery(value))
                   }, // Update the search query if the user submit a new one and the field is not empty
-              decoration: SearchStyles.searchBar),
-        ),
+              decoration: InputDecoration(
+                  // Icon
+                  prefixIcon: IconButton(
+                    icon: const Icon(FeatherIcons.search),
+                    color: BaseStyles.white,
+                    onPressed: () {
+                      if (searchBarField.text.isNotEmpty) {
+                        setState(() => updateQuery(searchBarField.text));
+                      }
+                    },
+                  ),
+                  prefixIconColor: BaseStyles.white,
 
-        // Delete the search bar text field content
-        TextButton(
-          onPressed: clearSearchBar,
-          child: Text(
-            "Delete",
-            style: BaseStyles.text,
-          ),
-        )
+                  // Placeholder
+                  hintText: "Search...",
+                  hintStyle: BaseStyles.placeholder,
+
+                  // Content padding
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: BaseStyles.spacing_3,
+                      horizontal: BaseStyles.spacing_3),
+
+                  // No border
+                  border: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: BaseStyles.primaryColor, width: 0),
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(BaseStyles.spacing_10)),
+                  ),
+
+                  // No border
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: BaseStyles.primaryColor, width: 0),
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(BaseStyles.spacing_10)),
+                  ),
+
+                  // But focus border
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: BaseStyles.white, width: 2.0),
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(BaseStyles.spacing_10)),
+                  ),
+
+                  // Filled + fillColor
+                  filled: true,
+                  fillColor: BaseStyles.darkShade_1,
+                  suffixIcon: IconButton(
+                      icon: const Icon(FeatherIcons.x),
+                      color: BaseStyles.white,
+                      onPressed: clearSearchBar))),
+        ),
       ]),
     );
   }

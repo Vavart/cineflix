@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
-import 'package:cineflix/styles/search.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
@@ -98,6 +97,21 @@ class MoviesState extends State<Movies> {
     setState(() => selectedMovies = selectedMoviesFromAPI);
   }
 
+  // Navigation methods
+  void _navigationToMovieDetail(BuildContext context, int index) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
+  }
+
+  void _navigationToSearchedMovies(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Search(
+                  searchQuery: searchBarField.text,
+                )));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -159,25 +173,63 @@ class MoviesState extends State<Movies> {
           horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_3),
       child: Row(children: [
         Flexible(
-          child: TextField(
-              textAlignVertical: TextAlignVertical.bottom,
-              controller: searchBarField,
-              cursorColor: BaseStyles.white,
-              style: BaseStyles.text,
-              onSubmitted: (value) => {
-                    if (value.isNotEmpty) _navigationToSearchedMovies(context)
-                  }, // Check if the search bar is not empty to navigate to the searched movies page
-              decoration: SearchStyles.searchBar),
-        ),
+            child: TextField(
+                textAlignVertical: TextAlignVertical.bottom,
+                controller: searchBarField,
+                cursorColor: BaseStyles.white,
+                style: BaseStyles.text,
+                onSubmitted: (value) => {
+                      if (value.isNotEmpty) _navigationToSearchedMovies(context)
+                    }, // Check if the search bar is not empty to navigate to the searched movies page
+                decoration: InputDecoration(
+                    // Icon
+                    prefixIcon: IconButton(
+                      icon: const Icon(FeatherIcons.search),
+                      color: BaseStyles.white,
+                      onPressed: () => _navigationToSearchedMovies(context),
+                    ),
+                    prefixIconColor: BaseStyles.white,
 
-        // Delete the search bar text field content
-        TextButton(
-          onPressed: clearSearchBar,
-          child: Text(
-            "Delete",
-            style: BaseStyles.text,
-          ),
-        )
+                    // Placeholder
+                    hintText: "Search...",
+                    hintStyle: BaseStyles.placeholder,
+
+                    // Content padding
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: BaseStyles.spacing_3,
+                        horizontal: BaseStyles.spacing_3),
+
+                    // No border
+                    border: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: BaseStyles.primaryColor, width: 0),
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(BaseStyles.spacing_10)),
+                    ),
+
+                    // No border
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: BaseStyles.primaryColor, width: 0),
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(BaseStyles.spacing_10)),
+                    ),
+
+                    // But focus border
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: BaseStyles.white, width: 2.0),
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(BaseStyles.spacing_10)),
+                    ),
+
+                    // Filled + fillColor
+                    filled: true,
+                    fillColor: BaseStyles.darkShade_1,
+                    suffixIcon: IconButton(
+                        icon: const Icon(FeatherIcons.x),
+                        color: BaseStyles.white,
+                        onPressed: clearSearchBar)))),
       ]),
     );
   }
@@ -461,20 +513,5 @@ class MoviesState extends State<Movies> {
         overflow: TextOverflow.ellipsis,
       ),
     );
-  }
-
-  // Navigation methods
-  void _navigationToMovieDetail(BuildContext context, int index) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
-  }
-
-  void _navigationToSearchedMovies(BuildContext context) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Search(
-                  searchQuery: searchBarField.text,
-                )));
   }
 }
