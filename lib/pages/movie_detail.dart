@@ -229,26 +229,22 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieVideo() {
-    if (_youtubePlayerController.initialVideoId.isEmpty) {
-      return Image.asset("assets/images/no_movie_video_error_preview.png");
-    } else {
-      return YoutubePlayer(
-        controller: _youtubePlayerController,
-        showVideoProgressIndicator: true,
-        bottomActions: [
-          CurrentPosition(),
-          ProgressBar(
-              isExpanded: true,
-              colors: ProgressBarColors(
-                playedColor: BaseStyles.lightBlue,
-                handleColor: BaseStyles.lightBlue,
-                bufferedColor: BaseStyles.lightBlue.withOpacity(0.5),
-              )),
-          RemainingDuration(),
-          FullScreenButton(),
-        ],
-      );
-    }
+    return YoutubePlayer(
+      controller: _youtubePlayerController,
+      showVideoProgressIndicator: true,
+      bottomActions: [
+        CurrentPosition(),
+        ProgressBar(
+            isExpanded: true,
+            colors: ProgressBarColors(
+              playedColor: BaseStyles.lightBlue,
+              handleColor: BaseStyles.lightBlue,
+              bufferedColor: BaseStyles.lightBlue.withOpacity(0.5),
+            )),
+        RemainingDuration(),
+        FullScreenButton(),
+      ],
+    );
   }
 
   Widget _renderMoviePoster() {
