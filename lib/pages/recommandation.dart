@@ -1,23 +1,21 @@
 // Basic imports
 import 'dart:io';
+import 'package:cineflix/components/simple_card_builder.dart';
 import 'package:cineflix/models/api_search_response.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
-import 'package:cached_network_image/cached_network_image.dart';
-
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
-import 'package:cineflix/styles/movies.dart';
 import 'package:cineflix/styles/recommandation.dart';
 import 'package:feather_icons/feather_icons.dart';
 
-// Pages imports
-import 'movie_detail.dart';
-
 // Models import
 import 'package:cineflix/models/movie.dart';
+
+// Components imports
+import 'package:cineflix/components/navigation.dart';
 
 class Recommandation extends StatefulWidget {
   const Recommandation({super.key});
@@ -27,6 +25,10 @@ class Recommandation extends StatefulWidget {
 }
 
 class RecommandationState extends State<Recommandation> {
+  /// ************************************************************************************ ///
+  /// ***************************** Utils and initialization ***************************** ///
+  /// ************************************************************************************ ///
+
   // Current tab index (0: Classic page, 1: Movie suggestion)
   int _currentIndex = 0;
 
@@ -43,9 +45,6 @@ class RecommandationState extends State<Recommandation> {
   // Boolean to know if the movies are loading
   bool _isLoading = true;
 
-  // API url to get images
-  final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
-
   @override
   void initState() {
     super.initState();
@@ -53,6 +52,8 @@ class RecommandationState extends State<Recommandation> {
 
   // Load recommended movies
   void _loadMovies() async {
+    setState(() => _isLoading = true);
+
     // Init shared preferences
     await _initSharedPreferences();
 
@@ -70,6 +71,10 @@ class RecommandationState extends State<Recommandation> {
   Future<void> _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
   }
+
+  /// *********************************************************************************** ///
+  /// ***************************** Recommandation function ***************************** ///
+  /// *********************************************************************************** ///
 
   // fetchRecommendedMovies() is a method that returns a Future<List<Movie>> (the list of recommended movies)
   Future<List<Movie>> _fetchRecommendedMovies(
@@ -94,7 +99,11 @@ class RecommandationState extends State<Recommandation> {
       recommendedMovies.add(movie);
     }
 
-    // Get a random top rated movie
+    /// ***************************************************************************************** ///
+    /// ***************************** Recommandation function utils ***************************** ///
+    /// ***************************************************************************************** ///
+
+    // Get a random top rated movie (second recommendation)
     Movie movie = await _fetchRandomTopRatedMovies();
 
     while (watchedMovies.contains(movie.id.toString())) {
@@ -148,6 +157,10 @@ class RecommandationState extends State<Recommandation> {
     return similarMovies[randomSimilarMovieID];
   }
 
+  /// ********************************************************************** ///
+  /// ***************************** Build page ***************************** ///
+  /// ********************************************************************** ///
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -179,182 +192,9 @@ class RecommandationState extends State<Recommandation> {
     );
   }
 
-  /// ******************************************************************************************** ///
-  /// ***************************** Render movies suggestion widget  ***************************** ///
-  /// ******************************************************************************************** ///
-
-  Widget _renderMovieSuggestion() {
-    return Padding(
-      padding: const EdgeInsets.only(
-          top: BaseStyles.spacing_9, bottom: BaseStyles.spacing_6),
-      child: Column(
-        children: [
-          _renderMovieSuggHeader(),
-          _renderSuggestions(),
-          _renderProTip(),
-          _renderMovieSuggCTA(),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderMovieSuggHeader() {
-    return Column(
-      children: [
-        _renderMoviesSuggTitle(),
-        _renderMoviesSuggIndicationText(),
-      ],
-    );
-  }
-
-  Widget _renderMoviesSuggTitle() {
-    return Text("Look what we got for you", style: BaseStyles.h2);
-  }
-
-  Widget _renderMoviesSuggIndicationText() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
-          BaseStyles.spacing_3, BaseStyles.spacing_3, BaseStyles.spacing_0),
-      child: Text(
-        "Here are some movie suggestions based on your preferences.\nHope you will like them !",
-        style: BaseStyles.text,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _renderSuggestions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          vertical: BaseStyles.spacing_6, horizontal: BaseStyles.spacing_0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: _renderSuggestionCards(),
-      ),
-    );
-  }
-
-  List<Widget> _renderSuggestionCards() {
-    List<Widget> suggestionCards = [];
-
-    for (int i = 0; i < _movies.length; i++) {
-      suggestionCards.add(_renderSuggestionCard(_movies[i], i));
-    }
-    return suggestionCards;
-  }
-
-  Widget _renderSuggestionCard(Movie movie, int index) {
-    return GestureDetector(
-      onTap: () => _navigationToMovieDetail(context, movie.id),
-      child: Column(
-        children: [
-          _renderSuggestionCardImage(movie),
-          _renderSuggestionCardTitle(movie.original_title),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderSuggestionCardImage(Movie movie) {
-    // If the movie has a poster
-    if (movie.backdrop_path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: CachedNetworkImage(
-          imageUrl: _apiImageUrl + movie.backdrop_path!,
-          placeholder: (context, url) {
-            return Center(
-              child: SizedBox(
-                  width: BaseStyles.spacing_5,
-                  height: BaseStyles.spacing_5,
-                  child: CircularProgressIndicator(
-                    color: BaseStyles.lightBlue,
-                    strokeWidth: BaseStyles.spacing_1,
-                  )),
-            );
-          },
-
-          // If the image fails to load display a default image instead
-          errorWidget: (context, url, error) {
-            return const Image(
-              image: AssetImage(
-                "assets/images/no_movie_preview.png",
-              ),
-              width: MovieStyles.movieCardImgWidth,
-              height: MovieStyles.movieCardImgHeight,
-              fit: BoxFit.cover,
-            );
-          },
-          width: MovieStyles.movieCardImgWidth,
-          height: MovieStyles.movieCardImgHeight,
-          fit: BoxFit.cover,
-        ),
-      );
-
-      // If the movie has no poster
-    } else {
-      Image img = const Image(
-        image: AssetImage(
-          "assets/images/no_movie_preview.png",
-        ),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: img,
-      );
-    }
-  }
-
-  Widget _renderSuggestionCardTitle(String title) {
-    return SizedBox(
-      width: MovieStyles.simpleMovieCardTitleWidth,
-      child: Padding(
-        padding: const EdgeInsets.only(top: BaseStyles.spacing_1),
-        child: Text(
-          title,
-          style: BaseStyles.boldSmallText,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
-
-  Widget _renderProTip() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: BaseStyles.spacing_3),
-      child: Text(
-        "Pro tip : consider adding movies to your favorites to get a more personalized suggestions !",
-        style: BaseStyles.smallText,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _renderMovieSuggCTA() {
-    return TextButton(
-      style: BaseStyles.ctaButtonStyle,
-      onPressed: () => setState(() {
-        _currentIndex = 0;
-      }),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            vertical: BaseStyles.spacing_2, horizontal: BaseStyles.spacing_3),
-        child: Text(
-          "Make another suggestion",
-          style: BaseStyles.text,
-        ),
-      ),
-    );
-  }
-
-  /// ********************************************************************************** ///
-  /// ***************************** Render classic widget  ***************************** ///
-  /// ********************************************************************************** ///
+  /// ****************************************************************************************************** ///
+  /// ***************************** Render classic widget (no suggestion yet)  ***************************** ///
+  /// ****************************************************************************************************** ///
 
   Widget _renderClassicPage() {
     return Padding(
@@ -425,9 +265,108 @@ class RecommandationState extends State<Recommandation> {
     );
   }
 
-  // Navigation methods
-  void _navigationToMovieDetail(BuildContext context, int index) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
+  /// ******************************************************************************************** ///
+  /// ***************************** Render movies suggestion widget ***************************** ///
+  /// ******************************************************************************************** ///
+
+  Widget _renderMovieSuggestion() {
+    return Padding(
+      padding: const EdgeInsets.only(
+          top: BaseStyles.spacing_9, bottom: BaseStyles.spacing_6),
+      child: Column(
+        children: [
+          _renderMovieSuggHeader(),
+          _renderSuggestions(),
+          _renderProTip(),
+          _renderMovieSuggCTA(),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderMovieSuggHeader() {
+    return Column(
+      children: [
+        _renderMoviesSuggTitle(),
+        _renderMoviesSuggIndicationText(),
+      ],
+    );
+  }
+
+  Widget _renderMoviesSuggTitle() {
+    return Text("Look what we got for you", style: BaseStyles.h2);
+  }
+
+  Widget _renderMoviesSuggIndicationText() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
+          BaseStyles.spacing_3, BaseStyles.spacing_3, BaseStyles.spacing_0),
+      child: Text(
+        "Here are some movie suggestions based on your preferences.\nHope you will like them !",
+        style: BaseStyles.text,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _renderSuggestions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          vertical: BaseStyles.spacing_6, horizontal: BaseStyles.spacing_0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: _renderSuggestionCards(),
+      ),
+    );
+  }
+
+  List<Widget> _renderSuggestionCards() {
+    List<Widget> suggestionCards = [];
+
+    for (int i = 0; i < _movies.length; i++) {
+      suggestionCards.add(_renderSuggestionCard(_movies[i], i));
+    }
+    return suggestionCards;
+  }
+
+  Widget _renderSuggestionCard(Movie movie, int index) {
+    return GestureDetector(
+      onTap: () => Navigation.navigationToMovieDetail(context, movie.id),
+      child: Column(
+        children: [
+          SimpleCardBuilder.renderSimpleCardImage(movie.backdrop_path),
+          SimpleCardBuilder.renderSimpleCardTitle(movie.original_title),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderProTip() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
+          BaseStyles.spacing_0, BaseStyles.spacing_3, BaseStyles.spacing_4),
+      child: Text(
+        "Pro tip : consider adding movies to your favorites to get more personalized suggestions !",
+        style: BaseStyles.smallText,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _renderMovieSuggCTA() {
+    return TextButton(
+      style: BaseStyles.ctaButtonStyle,
+      onPressed: () => setState(() {
+        _currentIndex = 0;
+      }),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            vertical: BaseStyles.spacing_2, horizontal: BaseStyles.spacing_3),
+        child: Text(
+          "Make another suggestion",
+          style: BaseStyles.text,
+        ),
+      ),
+    );
   }
 }

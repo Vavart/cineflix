@@ -1,11 +1,11 @@
 // Basic imports
+import 'package:cineflix/components/simple_card_builder.dart';
 import 'package:cineflix/models/api_video_response.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -18,6 +18,9 @@ import 'package:cineflix/models/api_cast_response.dart';
 import 'package:cineflix/models/cast.dart';
 import 'package:cineflix/models/video.dart';
 
+// Components imports
+import 'package:cineflix/components/utils.dart';
+
 class MovieDetail extends StatefulWidget {
   // Movie ID
   final int movieID;
@@ -29,7 +32,11 @@ class MovieDetail extends StatefulWidget {
 }
 
 class MovieDetailState extends State<MovieDetail> {
-  // Movie ID
+  /// ************************************************************************************ ///
+  /// ***************************** Utils and initialization ***************************** ///
+  /// ************************************************************************************ ///
+
+  // Movie ID (will be set from the constructor)
   int movieID;
 
   // Shared preferences
@@ -53,22 +60,20 @@ class MovieDetailState extends State<MovieDetail> {
   MovieDetailState(this.movieID);
 
   // The movie to display in the page (will be fetched from the API)
+  // Placeholder movie by default
   Movie movie = Movie(
     id: -1,
     backdrop_path: null,
     homepage: null,
-    original_title: "Loading movie",
+    original_title: "Loading movie ...",
     overview: "Loading the movie description ...",
     poster_path: null,
-    release_date: "1970-01-01",
+    release_date: "Coming soon ...",
     vote_average: 0,
   );
 
   // List of the casting to display in the page (will be fetched from the API)
   List<Cast> cast = [];
-
-  // API url to get images
-  final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
 
   @override
   void initState() {
@@ -126,6 +131,10 @@ class MovieDetailState extends State<MovieDetail> {
     setState(() => cast = castFetched);
   }
 
+  /// ********************************************************************* ///
+  /// ***************************** Callbacks ***************************** ///
+  /// ********************************************************************* ///
+
   // Callbacks for the CTAs
   void _handleFavoriteButtonPressed() async {
     // If the movie is already in the favorite list, remove it, else add it
@@ -161,6 +170,10 @@ class MovieDetailState extends State<MovieDetail> {
     _prefs.setStringList("watched_movies", _watchedMovies);
   }
 
+  /// ****************************************************************************** ///
+  /// ***************************** Youtube management ***************************** ///
+  /// ****************************************************************************** ///
+
   // Get the movie video url (if it exists)
   Future<void> _getMovieVideoUrl() async {
     APIVideoResponse apiVideoResponse =
@@ -180,7 +193,6 @@ class MovieDetailState extends State<MovieDetail> {
           ? "https://www.youtube.com/watch?v=${filteredVideos[0].key}"
           : "";
     });
-
   }
 
   // Launch movie trailer (when it's available)
@@ -191,6 +203,9 @@ class MovieDetailState extends State<MovieDetail> {
     }
   }
 
+  /// ********************************************************************** ///
+  /// ***************************** Build page ***************************** ///
+  /// ********************************************************************** ///
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,7 +223,7 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _renderPage() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: BaseStyles.spacing_0),
+      padding: const EdgeInsets.only(bottom: BaseStyles.spacing_3),
       child: Column(
         children: [
           _renderMovieIllustration(),
@@ -220,6 +235,10 @@ class MovieDetailState extends State<MovieDetail> {
       ),
     );
   }
+
+  /// ******************************************************************************************************* ///
+  /// ***************************** Render movie illustration (video or poster) ***************************** ///
+  /// ******************************************************************************************************* ///
 
   Widget _renderMovieIllustration() {
     // If there is a video url, display a video player, else display a poster image
@@ -251,13 +270,11 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _renderMoviePoster() {
     // If there is no poster image, display a placeholder image
-    ImageProvider image = const AssetImage(
-      "assets/images/no_movie_illustration_preview.png",
-    );
+    ImageProvider image = AssetImage(Utils.noMoviePosterURI);
 
     if (movie.poster_path != null) {
       image = NetworkImage(
-        _apiImageUrl + movie.poster_path!,
+        Utils.apiImageURL + movie.poster_path!,
       );
     }
 
@@ -271,6 +288,10 @@ class MovieDetailState extends State<MovieDetail> {
       ),
     );
   }
+
+  /// ************************************************************************************************************** ///
+  /// ***************************** Render movie header (basic and fav / watched info) ***************************** ///
+  /// ************************************************************************************************************** ///
 
   Widget _renderMovieHeader() {
     return Padding(
@@ -414,6 +435,10 @@ class MovieDetailState extends State<MovieDetail> {
     );
   }
 
+  /// ************************************************************************************ ///
+  /// ***************************** Render movie header CTAs ***************************** ///
+  /// ************************************************************************************ ///
+
   Widget _renderCTAs() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -486,6 +511,10 @@ class MovieDetailState extends State<MovieDetail> {
         ));
   }
 
+  /// ********************************************************************************* ///
+  /// ***************************** Render movie synopsis ***************************** ///
+  /// ********************************************************************************* ///
+
   Widget _renderMovieSynopsis() {
     return Container(
       margin: const EdgeInsets.only(top: BaseStyles.spacing_3),
@@ -498,6 +527,10 @@ class MovieDetailState extends State<MovieDetail> {
       ),
     );
   }
+
+  /// ******************************************************************************** ///
+  /// ***************************** Render movie casting ***************************** ///
+  /// ******************************************************************************** ///
 
   Widget _renderCasting() {
     return Column(
@@ -521,7 +554,7 @@ class MovieDetailState extends State<MovieDetail> {
     );
   }
 
-  // Render the Trendy section movies
+  // Render the casting characters
   Widget _renderCastingCharacters() {
     // If there is a casting, we display it
     if (cast.isNotEmpty) {
@@ -539,110 +572,24 @@ class MovieDetailState extends State<MovieDetail> {
 
     // If there is no casting, we display a message
     else {
-      return Container(
-        margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
-            BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
-        child: Text(
-          "No casting available",
-          style: BaseStyles.text,
-        ),
+      return Text(
+        "No casting available",
+        style: BaseStyles.text,
       );
     }
   }
 
-  // Render a simple movie card : image + title
   Widget _actorCardBuilder(BuildContext context, int index) {
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_0),
       child: Column(
         children: [
-          _renderActorCardPicture(index),
-          _renderActorCardName(index),
-          _renderActorCardRole(index),
+          SimpleCardBuilder.renderSimpleCardImage(cast[index].profile_path),
+          SimpleCardBuilder.renderSimpleCardTitle(cast[index].name),
+          SimpleCardBuilder.renderSimpleCardSubtitle(cast[index].character),
         ],
       ),
-    );
-  }
-
-  Widget _renderActorCardPicture(int index) {
-    // If the actor has a poster
-    if (cast[index].profile_path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: CachedNetworkImage(
-          imageUrl: _apiImageUrl + cast[index].profile_path!,
-          placeholder: (context, url) {
-            return Center(
-              child: SizedBox(
-                  width: BaseStyles.spacing_5,
-                  height: BaseStyles.spacing_5,
-                  child: CircularProgressIndicator(
-                    color: BaseStyles.lightBlue,
-                    strokeWidth: BaseStyles.spacing_1,
-                  )),
-            );
-          },
-
-          // If the image fails to load display a default image instead
-          errorWidget: (context, url, error) {
-            return const Image(
-              image: AssetImage(
-                "assets/images/no_actor_preview.png",
-              ),
-              width: MovieStyles.movieCardImgWidth,
-              height: MovieStyles.movieCardImgHeight,
-              fit: BoxFit.cover,
-            );
-          },
-          width: MovieStyles.movieCardImgWidth,
-          height: MovieStyles.movieCardImgHeight,
-          fit: BoxFit.cover,
-        ),
-      );
-
-      // If the movie has no poster
-    } else {
-      Image img = const Image(
-        image: AssetImage(
-          "assets/images/no_actor_preview.png",
-        ),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: img,
-      );
-    }
-  }
-
-  Widget _renderActorCardName(int index) {
-    return Container(
-      margin: const EdgeInsets.only(top: BaseStyles.spacing_1),
-      width: 100,
-      child: Text(
-        cast[index].name,
-        style: BaseStyles.boldSmallText,
-        textAlign: TextAlign.center,
-
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _renderActorCardRole(int index) {
-    return Text(
-      cast[index].character,
-      style: BaseStyles.smallText,
-      textAlign: TextAlign.center,
-
-      // Limit the number of lines to 2 and add an ellipsis if the text is too long
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
     );
   }
 }

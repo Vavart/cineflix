@@ -1,18 +1,19 @@
 // Basic imports
+import 'package:cineflix/components/complex_card_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
-// Pages imports
-import 'movie_detail.dart';
-
 // Models imports
 import 'package:cineflix/models/movie.dart';
+
+// Components imports
+import 'package:cineflix/components/favorite_card_builder.dart';
+import 'package:cineflix/components/navigation.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({Key? key}) : super(key: key);
@@ -22,6 +23,10 @@ class Favorites extends StatefulWidget {
 }
 
 class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
+  /// ************************************************************************************ ///
+  /// ***************************** Utils and initialization ***************************** ///
+  /// ************************************************************************************ ///
+
   // Shared preferences
   late SharedPreferences _prefs;
 
@@ -32,9 +37,6 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   // List of all favorite / watched movies data (will be fetched from the API)
   List<Movie> _favoriteMoviesData = [];
   List<Movie> _watchedMoviesData = [];
-
-  // API url to get images
-  final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
 
   // Tab controller
   late TabController _tabController = TabController(length: 2, vsync: this);
@@ -119,8 +121,15 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
     setState(() => _watchedMoviesData = watchedMoviesFromAPI);
   }
 
+  /// ********************************************************************************* ///
+  /// ***************************** Callbacks & snackbars ***************************** ///
+  /// ********************************************************************************* ///
+
   // Callbacks for the CTAs
   void _handleRemoveFromFavorites(int movieIndex) async {
+    // Remove all previous snackbars (if any)
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+
     // Keep the movie id in case of undo
     final String movieId = _favoriteMoviesData[movieIndex].id.toString();
 
@@ -160,6 +169,9 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   }
 
   void _handleRemoveFromWatchList(int movieIndex) async {
+    // Remove all previous snackbars (if any)
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+
     // Keep the movie id in case of undo
     final String movieId = _watchedMoviesData[movieIndex].id.toString();
 
@@ -202,6 +214,7 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   /// ***************************** Render page ***************************** ///
   /// *********************************************************************** ///
 
+  // Render the page (impossible to use a component widget because of the tab controller)
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -254,13 +267,16 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
                   SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: _favoriteMovies.isEmpty
-                        ? _renderNoFavoritesText()
+                        // ? _renderNoFavoritesText()
+                        ? FavoriteCardBuilder.renderNoFavoritesOrWatchedText(
+                            true)
                         : _renderFavoriteMoviesList(context),
                   ),
                   SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: _watchedMovies.isEmpty
-                        ? _renderNoWatchedText()
+                        ? FavoriteCardBuilder.renderNoFavoritesOrWatchedText(
+                            false)
                         : _renderWatchedMoviesList(context),
                   ),
                 ]),
@@ -270,49 +286,6 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
         ),
       );
     }
-  }
-
-  /// *********************************************************************************************** ///
-  /// ***************************** Render no favorites / watched texts ***************************** ///
-  /// *********************************************************************************************** ///
-
-  Widget _renderNoFavoritesText() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_10),
-      child: Row(
-        children: [
-          // Flexible to make the text wrap if the search query is too long
-          Flexible(
-            child: Text(
-              "You didn't add any movie to your favorites 😢\n\nTry to search for a movie you love !",
-              style: BaseStyles.text,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderNoWatchedText() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_3, vertical: BaseStyles.spacing_10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Flexible to make the text wrap if the search query is too long
-          Flexible(
-            child: Text(
-              "You didn't add any movie to your watched list 😢\n\nTry to search for a movie !",
-              style: BaseStyles.text,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   /// ******************************************************************************** ///
@@ -333,7 +306,7 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
                   BaseStyles.spacing_2,
                   BaseStyles.spacing_3,
                   BaseStyles.spacing_1),
-              child: _complexFavoriteMovieCardWithTrash(context, i),
+              child: _complexFavoriteMovieCard(context, i),
             ),
         ],
       ),
@@ -341,173 +314,38 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   }
 
   // Render the Selected movies section list : image + title + rating + description + watch/unwatch icon
-  Widget _complexFavoriteMovieCardWithTrash(BuildContext context, int index) {
+  Widget _complexFavoriteMovieCard(BuildContext context, int index) {
     return GestureDetector(
-      onTap: () =>
-          _navigationToMovieDetail(context, int.parse(_favoriteMovies[index])),
+      onTap: () => Navigation.navigationToMovieDetail(
+          context, int.parse(_favoriteMovies[index])),
       child: SizedBox(
         height: MovieStyles.complexMovieCardHeight,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
-            _renderFavoriteMovieComplexCardImage(index),
+            // Movie image
+            ComplexCardBuilder.renderMovieComplexCardImage(
+                _favoriteMoviesData[index].poster_path),
             // Separator between the image and the info
             const SizedBox(width: BaseStyles.spacing_2),
-            _renderFavoriteMovieComplexCardInfo(context, index),
+            // Movie info
+            ComplexCardBuilder.renderMovieComplexCardInfo(
+                _favoriteMoviesData[index].original_title,
+                _favoriteMoviesData[index].vote_average,
+                _watchedMovies.contains(_favoriteMovies[index]),
+                _favoriteMoviesData[index].overview),
             // Separator between the info and the trash icon
             const SizedBox(width: BaseStyles.spacing_2),
-            _renderFavoriteMovieComplexCardTrashIcon(index),
+            // Trash icon (to remove the movie from the favorite list)
+            _renderRemoveFavoriteBtn(index),
           ],
         ),
       ),
     );
   }
 
-  Widget _renderFavoriteMovieComplexCardImage(int index) {
-    // If the movie has a poster
-    if (_favoriteMoviesData[index].poster_path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: CachedNetworkImage(
-          imageUrl: _apiImageUrl + _favoriteMoviesData[index].poster_path!,
-          placeholder: (context, url) {
-            return Center(
-              child: SizedBox(
-                  width: BaseStyles.spacing_5,
-                  height: BaseStyles.spacing_5,
-                  child: CircularProgressIndicator(
-                    color: BaseStyles.lightBlue,
-                    strokeWidth: BaseStyles.spacing_1,
-                  )),
-            );
-          },
-
-          // If the image fails to load display a default image instead
-          errorWidget: (context, url, error) {
-            return const Image(
-              image: AssetImage(
-                "assets/images/no_movie_preview.png",
-              ),
-              width: MovieStyles.movieCardImgWidth,
-              height: MovieStyles.movieCardImgHeight,
-              fit: BoxFit.cover,
-            );
-          },
-          width: MovieStyles.movieCardImgWidth,
-          height: MovieStyles.movieCardImgHeight,
-          fit: BoxFit.cover,
-        ),
-      );
-
-      // If the movie has no poster
-    } else {
-      Image img = const Image(
-        image: AssetImage(
-          "assets/images/no_movie_preview.png",
-        ),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: img,
-      );
-    }
-  }
-
-  Widget _renderFavoriteMovieComplexCardInfo(BuildContext context, int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _renderFavoriteMovieComplexCardTitle(index),
-        _renderFavoriteMovieComplexCardIcons(index),
-        _renderFavoriteMovieComplexCardDescription(context, index),
-      ],
-    );
-  }
-
-  Widget _renderFavoriteMovieComplexCardTitle(int index) {
-    return SizedBox(
-      width: 150.0,
-      child: Text(
-        textAlign: TextAlign.left,
-        _favoriteMoviesData[index].original_title,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 2,
-        style: BaseStyles.boldText,
-      ),
-    );
-  }
-
-  Widget _renderFavoriteMovieComplexCardIcons(int index) {
-    return Row(
-      children: [
-        _renderFavoriteMovieComplexCardRating(index),
-        _renderFavoriteMovieComplexCardWatchIcon(index),
-      ],
-    );
-  }
-
-  Widget _renderFavoriteMovieComplexCardRating(int index) {
-    int rating = (_favoriteMoviesData[index].vote_average * 10).round();
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: Row(
-        children: [
-          Icon(
-            FeatherIcons.star,
-            color: BaseStyles.yellowStar,
-          ),
-          // Add a space between the icon and the text
-          const SizedBox(width: BaseStyles.spacing_1),
-          Text(
-            "$rating %",
-            style: BaseStyles.boldSmallYellowText,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderFavoriteMovieComplexCardWatchIcon(int index) {
-    // Check if the movie is watched or not to display the right icon
-    IconData icon = _watchedMovies.contains(_favoriteMovies[index])
-        ? FeatherIcons.checkCircle
-        : FeatherIcons.eyeOff;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: Icon(
-        icon,
-        color: BaseStyles.lightBlue,
-      ),
-    );
-  }
-
-  Widget _renderFavoriteMovieComplexCardDescription(
-      BuildContext context, int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: MediaQuery.of(context).orientation == Orientation.portrait
-          ? 150.0
-          : MediaQuery.of(context).size.width * 0.6,
-      child: Text(
-        _favoriteMoviesData[index].overview,
-        style: BaseStyles.smallText,
-        textAlign: TextAlign.left,
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _renderFavoriteMovieComplexCardTrashIcon(int index) {
+  // Render the trash icon to remove the movie from the favorite list (impossible to use component because of the onPressed method)
+  Widget _renderRemoveFavoriteBtn(int index) {
     return TextButton(
       onPressed: () {
         _handleRemoveFromFavorites(index);
@@ -552,171 +390,35 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
   // Render the Selected movies section list : image + title + rating + description + watch/unwatch icon
   Widget _complexWatchedMovieCardWithTrash(BuildContext context, int index) {
     return GestureDetector(
-      onTap: () =>
-          _navigationToMovieDetail(context, int.parse(_watchedMovies[index])),
+      onTap: () => Navigation.navigationToMovieDetail(
+          context, int.parse(_watchedMovies[index])),
       child: SizedBox(
         height: MovieStyles.complexMovieCardHeight,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
-            _renderWatchedMovieComplexCardImage(index),
+            // Movie image
+            ComplexCardBuilder.renderMovieComplexCardImage(
+                _watchedMoviesData[index].poster_path),
             // Separator between the image and the info
             const SizedBox(width: BaseStyles.spacing_2),
-            _renderWatchedMovieComplexCardInfo(context, index),
+            // Movie info
+            ComplexCardBuilder.renderMovieComplexCardInfo(
+                _watchedMoviesData[index].original_title,
+                _watchedMoviesData[index].vote_average,
+                true,
+                _watchedMoviesData[index].overview),
             // Separator between the info and the trash icon
             const SizedBox(width: BaseStyles.spacing_2),
-            _renderWatchedMovieComplexCardTrashIcon(index),
+            // Trash icon (to remove the movie from the favorite list)
+            _renderRemoveWatchedBtn(index),
           ],
         ),
       ),
     );
   }
 
-  Widget _renderWatchedMovieComplexCardImage(int index) {
-    // If the movie has a poster
-    if (_watchedMoviesData[index].poster_path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: CachedNetworkImage(
-          imageUrl: _apiImageUrl + _watchedMoviesData[index].poster_path!,
-          placeholder: (context, url) {
-            return Center(
-              child: SizedBox(
-                  width: BaseStyles.spacing_5,
-                  height: BaseStyles.spacing_5,
-                  child: CircularProgressIndicator(
-                    color: BaseStyles.lightBlue,
-                    strokeWidth: BaseStyles.spacing_1,
-                  )),
-            );
-          },
-
-          // If the image fails to load display a default image instead
-          errorWidget: (context, url, error) {
-            return const Image(
-              image: AssetImage(
-                "assets/images/no_movie_preview.png",
-              ),
-              width: MovieStyles.movieCardImgWidth,
-              height: MovieStyles.movieCardImgHeight,
-              fit: BoxFit.cover,
-            );
-          },
-          width: MovieStyles.movieCardImgWidth,
-          height: MovieStyles.movieCardImgHeight,
-          fit: BoxFit.cover,
-        ),
-      );
-
-      // If the movie has no poster
-    } else {
-      Image img = const Image(
-        image: AssetImage(
-          "assets/images/no_movie_preview.png",
-        ),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: img,
-      );
-    }
-  }
-
-  Widget _renderWatchedMovieComplexCardInfo(BuildContext context, int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _renderWatchedMovieComplexCardTitle(index),
-        _renderWatchedMovieComplexCardIcons(index),
-        _renderWatchedMovieComplexCardDescription(context, index),
-      ],
-    );
-  }
-
-  Widget _renderWatchedMovieComplexCardTitle(int index) {
-    return SizedBox(
-      width: 150.0,
-      child: Text(
-        textAlign: TextAlign.left,
-        _watchedMoviesData[index].original_title,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 2,
-        style: BaseStyles.boldText,
-      ),
-    );
-  }
-
-  Widget _renderWatchedMovieComplexCardIcons(int index) {
-    return Row(
-      children: [
-        _renderWatchedMovieComplexCardRating(index),
-        _renderWatchedMovieComplexCardWatchIcon(index),
-      ],
-    );
-  }
-
-  Widget _renderWatchedMovieComplexCardRating(int index) {
-    int rating = (_watchedMoviesData[index].vote_average * 10).round();
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: Row(
-        children: [
-          Icon(
-            FeatherIcons.star,
-            color: BaseStyles.yellowStar,
-          ),
-          // Add a space between the icon and the text
-          const SizedBox(width: BaseStyles.spacing_1),
-          Text(
-            "$rating %",
-            style: BaseStyles.boldSmallYellowText,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderWatchedMovieComplexCardWatchIcon(int index) {
-    // Check if the movie is watched or not to display the right icon (normally, it should be watched all the time)
-    IconData icon = _watchedMovies.contains(_watchedMovies[index])
-        ? FeatherIcons.checkCircle
-        : FeatherIcons.eyeOff;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: Icon(
-        icon,
-        color: BaseStyles.lightBlue,
-      ),
-    );
-  }
-
-  Widget _renderWatchedMovieComplexCardDescription(
-      BuildContext context, int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: MediaQuery.of(context).orientation == Orientation.portrait
-          ? 150.0
-          : MediaQuery.of(context).size.width * 0.6,
-      child: Text(
-        _watchedMoviesData[index].overview,
-        style: BaseStyles.smallText,
-        textAlign: TextAlign.left,
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _renderWatchedMovieComplexCardTrashIcon(int index) {
+  Widget _renderRemoveWatchedBtn(int index) {
     return TextButton(
       onPressed: () => _handleRemoveFromWatchList(index),
       style: BaseStyles.ctaButtonStyle,
@@ -729,11 +431,5 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
         ),
       ),
     );
-  }
-
-  // Navigation methods
-  void _navigationToMovieDetail(BuildContext context, int index) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
   }
 }

@@ -9,16 +9,16 @@ import 'package:cineflix/styles/profile.dart';
 // Data imports
 import 'package:cineflix/data/profile_data.dart';
 
+// Component imports
+import 'package:cineflix/components/utils.dart';
+
 class Profile extends StatelessWidget {
   const Profile({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-          child: Column(
-        children: [_renderPage()],
-      )),
+      body: SingleChildScrollView(child: _renderPage()),
     );
   }
 
@@ -28,7 +28,7 @@ class Profile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: BaseStyles.spacing_2),
       child: Column(
-        children: <Widget>[
+        children: [
           _renderHeader(),
           _renderFacts(),
         ],
@@ -52,7 +52,7 @@ class Profile extends StatelessWidget {
     return SizedBox(
       width: ProfileStyle.imgWidth,
       height: ProfileStyle.imgHeight,
-      child: Image.asset('assets/images/authorPic.png'),
+      child: Image.asset(Utils.authorPicURI),
     );
   }
 
@@ -62,6 +62,7 @@ class Profile extends StatelessWidget {
       child: Text(
         "Maxime Sciare",
         style: BaseStyles.h1,
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -70,7 +71,7 @@ class Profile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: BaseStyles.spacing_6),
       child: Column(
-        children: <Widget>[
+        children: [
           for (var facts in ProfileData.facts) _renderFact(facts),
         ],
       ),
@@ -94,12 +95,10 @@ class Profile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(
           BaseStyles.spacing_4, 0, BaseStyles.spacing_4, BaseStyles.spacing_2),
-
-      // This is the trick to make the text align left
       child: Text(
-        textAlign: TextAlign.left,
         title,
         style: BaseStyles.h2,
+        textAlign: TextAlign.left,
       ),
     );
   }
@@ -121,11 +120,10 @@ class Profile extends StatelessWidget {
         BaseStyles.spacing_4,
         BaseStyles.spacing_2,
       ),
-
-      // This is the trick to make the text align left
       child: Text(
         fact,
         style: BaseStyles.text,
+        textAlign: TextAlign.left,
       ),
     );
   }

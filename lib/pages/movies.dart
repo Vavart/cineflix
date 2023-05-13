@@ -1,8 +1,9 @@
 // Basic imports
+import 'package:cineflix/components/complex_card_builder.dart';
+import 'package:cineflix/components/simple_card_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -15,7 +16,9 @@ import 'package:cineflix/models/api_search_response.dart';
 
 // Pages imports
 import 'package:cineflix/pages/search.dart';
-import 'package:cineflix/pages/movie_detail.dart';
+
+// Components imports
+import 'package:cineflix/components/navigation.dart';
 
 class Movies extends StatefulWidget {
   const Movies({super.key});
@@ -25,6 +28,10 @@ class Movies extends StatefulWidget {
 }
 
 class MoviesState extends State<Movies> {
+  /// ************************************************************************************ ///
+  /// ***************************** Utils and initialization ***************************** ///
+  /// ************************************************************************************ ///
+
   // Shared preferences
   late SharedPreferences _prefs;
 
@@ -42,9 +49,6 @@ class MoviesState extends State<Movies> {
   // Selected & trendy movies
   List<Movie> trendyMovies = [];
   List<Movie> selectedMovies = [];
-
-  // API url to get images
-  final String _apiImageUrl = "https://image.tmdb.org/t/p/original";
 
   // Fetch the list of all watched movies id (from the shared preferences) if null, set it to an empty list by default
   List<String> _watchedMovies = [];
@@ -99,12 +103,7 @@ class MoviesState extends State<Movies> {
     setState(() => selectedMovies = selectedMoviesFromAPI);
   }
 
-  // Navigation methods
-  void _navigationToMovieDetail(BuildContext context, int index) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MovieDetail(movieID: index)));
-  }
-
+  // Navigate to the search page (impossible to use a component because of the controller (searchBarField))
   void _navigationToSearchedMovies(BuildContext context) {
     Navigator.push(
         context,
@@ -113,6 +112,10 @@ class MoviesState extends State<Movies> {
                   searchQuery: searchBarField.text,
                 )));
   }
+
+  /// ********************************************************************** ///
+  /// ***************************** Build page ***************************** ///
+  /// ********************************************************************** ///
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +131,14 @@ class MoviesState extends State<Movies> {
 
   Widget _renderPage(BuildContext context) {
     return GestureDetector(
+      // Unfocus the text field when the user tap on the screen (to hide the keyboard)
       onTap: FocusScope.of(context).unfocus,
       child: Padding(
         padding: const EdgeInsets.only(
             top: BaseStyles.spacing_6, bottom: BaseStyles.spacing_6),
         child: Column(
           children: [
-            _renderAppTitle(),
+            _renderAppHeader(),
             StickyHeader(
                 header: _renderSearchBar(context),
                 content: Column(children: [
@@ -147,12 +151,12 @@ class MoviesState extends State<Movies> {
     );
   }
 
-  /// ********************************************************************************* ///
-  /// ***************************** Render the search bar ***************************** ///
-  /// ********************************************************************************* ///
+  /// ************************************************************************************************ ///
+  /// ***************************** Render app header and the search bar ***************************** ///
+  /// ************************************************************************************************ ///
 
   // Render methods
-  Widget _renderAppTitle() {
+  Widget _renderAppHeader() {
     return Container(
       margin: const EdgeInsets.only(top: BaseStyles.spacing_2),
       child: Column(
@@ -170,6 +174,7 @@ class MoviesState extends State<Movies> {
     );
   }
 
+  // Search bar (impossible to use a component because of the controller (clearSearchBar method ))
   Widget _renderSearchBar(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
@@ -267,13 +272,14 @@ class MoviesState extends State<Movies> {
     return Container(
       margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
           BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          "Trendy",
-          style: BaseStyles.h2,
-          textAlign: TextAlign.left,
-        ),
+      child: Row(
+        children: [
+          Text(
+            "Trendy",
+            style: BaseStyles.h2,
+            textAlign: TextAlign.left,
+          ),
+        ],
       ),
     );
   }
@@ -297,82 +303,16 @@ class MoviesState extends State<Movies> {
       margin: const EdgeInsets.symmetric(
           horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
       child: GestureDetector(
-        onTap: () => _navigationToMovieDetail(context, trendyMovies[index].id),
+        onTap: () =>
+            Navigation.navigationToMovieDetail(context, trendyMovies[index].id),
         child: Column(
           children: [
-            _renderMovieSimpleCardImage(index),
-            _renderMovieSimpleCardTitle(index),
+            SimpleCardBuilder.renderSimpleCardImage(
+                trendyMovies[index].poster_path),
+            SimpleCardBuilder.renderSimpleCardTitle(
+                trendyMovies[index].original_title),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _renderMovieSimpleCardImage(int index) {
-    // If the movie has a poster
-    if (trendyMovies[index].poster_path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: CachedNetworkImage(
-          imageUrl: _apiImageUrl + trendyMovies[index].poster_path!,
-          placeholder: (context, url) {
-            return Center(
-              child: SizedBox(
-                  width: BaseStyles.spacing_5,
-                  height: BaseStyles.spacing_5,
-                  child: CircularProgressIndicator(
-                    color: BaseStyles.lightBlue,
-                    strokeWidth: BaseStyles.spacing_1,
-                  )),
-            );
-          },
-
-          // If the image fails to load display a default image instead
-          errorWidget: (context, url, error) {
-            return const Image(
-              image: AssetImage(
-                "assets/images/no_movie_preview.png",
-              ),
-              width: MovieStyles.movieCardImgWidth,
-              height: MovieStyles.movieCardImgHeight,
-              fit: BoxFit.cover,
-            );
-          },
-          width: MovieStyles.movieCardImgWidth,
-          height: MovieStyles.movieCardImgHeight,
-          fit: BoxFit.cover,
-        ),
-      );
-
-      // If the movie has no poster
-    } else {
-      Image img = const Image(
-        image: AssetImage(
-          "assets/images/no_movie_preview.png",
-        ),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: img,
-      );
-    }
-  }
-
-  Widget _renderMovieSimpleCardTitle(int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: MovieStyles.simpleMovieCardTitleWidth,
-      child: Text(
-        trendyMovies[index].original_title,
-        style: BaseStyles.boldSmallText,
-        textAlign: TextAlign.center,
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -396,13 +336,14 @@ class MoviesState extends State<Movies> {
     return Container(
       margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
           BaseStyles.spacing_2, BaseStyles.spacing_3, BaseStyles.spacing_1),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          "Our selection",
-          style: BaseStyles.h2,
-          textAlign: TextAlign.left,
-        ),
+      child: Row(
+        children: [
+          Text(
+            "Our selection",
+            style: BaseStyles.h2,
+            textAlign: TextAlign.left,
+          ),
+        ],
       ),
     );
   }
@@ -410,7 +351,7 @@ class MoviesState extends State<Movies> {
   Widget _renderSelectedMoviesList(BuildContext context) {
     return Column(
       children: [
-        // Render the 5 selected movies (for loop because ListView.builder doesn't work with Column (unbounded height issues))
+        // Render the 5 selected movies
         for (int i = 0; i < selectedMovies.length; i++)
           Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -418,163 +359,36 @@ class MoviesState extends State<Movies> {
                 BaseStyles.spacing_2,
                 BaseStyles.spacing_3,
                 BaseStyles.spacing_1),
-            child: _complexMovieCard(context, i),
+            child: _complexMovieCardBuilder(context, i),
           ),
       ],
     );
   }
 
   // Render the Selected movies section list : image + title + rating + description + watch/unwatch icon
-  Widget _complexMovieCard(BuildContext context, int index) {
+  Widget _complexMovieCardBuilder(BuildContext context, int index) {
     return GestureDetector(
-      onTap: () => _navigationToMovieDetail(context, selectedMovies[index].id),
+      onTap: () =>
+          Navigation.navigationToMovieDetail(context, selectedMovies[index].id),
       child: SizedBox(
         height: MovieStyles.complexMovieCardHeight,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
-            _renderMovieComplexCardImage(index),
+            // Movie image
+            ComplexCardBuilder.renderMovieComplexCardImage(
+                selectedMovies[index].poster_path),
             // Separator between the image and the info
             const SizedBox(width: BaseStyles.spacing_3),
-            _renderMovieComplexCardInfo(context, index),
+            // Movie info
+            ComplexCardBuilder.renderMovieComplexCardInfo(
+                selectedMovies[index].original_title,
+                selectedMovies[index].vote_average,
+                _watchedMovies.contains(selectedMovies[index].id.toString()),
+                selectedMovies[index].overview),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _renderMovieComplexCardImage(int index) {
-    // If the movie has a poster
-    if (selectedMovies[index].poster_path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: CachedNetworkImage(
-          imageUrl: _apiImageUrl + selectedMovies[index].poster_path!,
-          placeholder: (context, url) {
-            return Center(
-              child: SizedBox(
-                  width: BaseStyles.spacing_5,
-                  height: BaseStyles.spacing_5,
-                  child: CircularProgressIndicator(
-                    color: BaseStyles.lightBlue,
-                    strokeWidth: BaseStyles.spacing_1,
-                  )),
-            );
-          },
-
-          // If the image fails to load display a default image instead
-          errorWidget: (context, url, error) {
-            return const Image(
-              image: AssetImage(
-                "assets/images/no_movie_preview.png",
-              ),
-              width: MovieStyles.movieCardImgWidth,
-              height: MovieStyles.movieCardImgHeight,
-              fit: BoxFit.cover,
-            );
-          },
-          width: MovieStyles.movieCardImgWidth,
-          height: MovieStyles.movieCardImgHeight,
-          fit: BoxFit.cover,
-        ),
-      );
-
-      // If the movie has no poster
-    } else {
-      Image img = const Image(
-        image: AssetImage(
-          "assets/images/no_movie_preview.png",
-        ),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
-      );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: img,
-      );
-    }
-  }
-
-  Widget _renderMovieComplexCardInfo(BuildContext context, int index) {
-    return Flexible(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _renderMovieComplexCardTitle(index),
-          _renderMovieComplexCardIcons(index),
-          _renderMovieComplexCardDescription(context, index),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderMovieComplexCardTitle(int index) {
-    return Text(
-      selectedMovies[index].original_title,
-      textAlign: TextAlign.left,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: BaseStyles.boldText,
-    );
-  }
-
-  Widget _renderMovieComplexCardIcons(int index) {
-    return Row(
-      children: [
-        _renderMovieComplexCardRating(index),
-        _renderMovieComplexCardWatchIcon(index),
-      ],
-    );
-  }
-
-  Widget _renderMovieComplexCardRating(int index) {
-    int rating = (selectedMovies[index].vote_average * 10).toInt();
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: Row(
-        children: [
-          Icon(
-            FeatherIcons.star,
-            color: BaseStyles.yellowStar,
-          ),
-          // Add a space between the icon and the text
-          const SizedBox(width: BaseStyles.spacing_1),
-          Text(
-            "$rating %",
-            style: BaseStyles.boldSmallYellowText,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _renderMovieComplexCardWatchIcon(int index) {
-    //
-    IconData icon = _watchedMovies.contains(selectedMovies[index].id.toString())
-        ? FeatherIcons.checkCircle
-        : FeatherIcons.eyeOff;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      child: Icon(
-        icon,
-        color: BaseStyles.lightBlue,
-      ),
-    );
-  }
-
-  Widget _renderMovieComplexCardDescription(BuildContext context, int index) {
-    return Text(
-      selectedMovies[index].overview,
-      style: BaseStyles.smallText,
-      textAlign: TextAlign.left,
-      // Limit the number of lines to 4 and add an ellipsis if the text is too long
-      maxLines: 4,
-      overflow: TextOverflow.ellipsis,
     );
   }
 }
