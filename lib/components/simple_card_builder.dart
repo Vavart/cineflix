@@ -1,4 +1,4 @@
-// Basic import
+// Basic and packages imports
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 

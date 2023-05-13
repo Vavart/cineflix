@@ -1,10 +1,10 @@
 // Basic imports
-import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
 import 'package:cineflix/styles/menu.dart';
+import 'package:feather_icons/feather_icons.dart';
 
 // Pages imports
 import 'package:cineflix/pages/movies.dart';

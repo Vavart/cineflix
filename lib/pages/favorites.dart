@@ -1,5 +1,4 @@
-// Basic imports
-import 'package:cineflix/components/complex_card_builder.dart';
+// Basic and packages imports
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +13,7 @@ import 'package:cineflix/models/movie.dart';
 // Components imports
 import 'package:cineflix/components/favorite_card_builder.dart';
 import 'package:cineflix/components/navigation.dart';
+import 'package:cineflix/components/complex_card_builder.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({Key? key}) : super(key: key);

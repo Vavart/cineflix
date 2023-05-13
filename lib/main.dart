@@ -1,5 +1,7 @@
 // Basics imports
 import 'package:flutter/material.dart';
+
+// Homepage import
 import 'package:cineflix/home.dart';
 
 // Styles imports

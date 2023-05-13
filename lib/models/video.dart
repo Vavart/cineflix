@@ -1,6 +1,3 @@
-// Basic imports
-// ignore_for_file: non_constant_identifier_names
-
 // Json package import
 import 'package:json_annotation/json_annotation.dart';
 

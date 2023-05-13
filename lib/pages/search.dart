@@ -1,4 +1,4 @@
-// Basic imports
+// Basic and packages imports
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
@@ -8,10 +8,8 @@ import 'package:cineflix/styles/base.dart';
 import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
-// Pages imports
-import 'package:cineflix/models/api_search_response.dart';
-
 // Models import
+import 'package:cineflix/models/api_search_response.dart';
 import "package:cineflix/models/movie.dart";
 
 // Components imports

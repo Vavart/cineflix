@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 // Styles imports
-import 'base.dart';
+import 'package:cineflix/styles/base.dart';
 
 class MenuStyles {
 

@@ -1,4 +1,4 @@
-// Basic imports
+// Basic and package imports
 import 'package:cineflix/components/complex_card_builder.dart';
 import 'package:cineflix/components/simple_card_builder.dart';
 import 'package:flutter/material.dart';

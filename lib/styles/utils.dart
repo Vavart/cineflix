@@ -1,4 +1,4 @@
-// Basic imports
+// Basic import
 import 'package:flutter/material.dart';
 
 class Utils {

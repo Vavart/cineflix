@@ -1,8 +1,8 @@
-// Basic imports
+// Basic import
 import 'package:flutter/material.dart';
 
-// Utils
-import 'utils.dart';
+// Style utils
+import 'package:cineflix/styles/utils.dart';
 
 class BaseStyles {
   // Typography

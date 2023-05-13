@@ -1,10 +1,7 @@
-// Basic imports
-import 'package:cineflix/components/simple_card_builder.dart';
-import 'package:cineflix/models/api_video_response.dart';
+// Basic and packages imports
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 // Styles imports
@@ -13,6 +10,7 @@ import 'package:cineflix/styles/movies.dart';
 import 'package:feather_icons/feather_icons.dart';
 
 // Models import
+import 'package:cineflix/models/api_video_response.dart';
 import 'package:cineflix/models/movie.dart';
 import 'package:cineflix/models/api_cast_response.dart';
 import 'package:cineflix/models/cast.dart';
@@ -20,6 +18,7 @@ import 'package:cineflix/models/video.dart';
 
 // Components imports
 import 'package:cineflix/components/utils.dart';
+import 'package:cineflix/components/simple_card_builder.dart';
 
 class MovieDetail extends StatefulWidget {
   // Movie ID
@@ -193,14 +192,6 @@ class MovieDetailState extends State<MovieDetail> {
           ? "https://www.youtube.com/watch?v=${filteredVideos[0].key}"
           : "";
     });
-  }
-
-  // Launch movie trailer (when it's available)
-  Future<void> _launchUrl(String url) async {
-    Uri trailerUrl = Uri.parse(url);
-    if (!await launchUrl(trailerUrl)) {
-      throw Exception('Could not launch $trailerUrl');
-    }
   }
 
   /// ********************************************************************** ///
@@ -462,7 +453,7 @@ class MovieDetailState extends State<MovieDetail> {
 
   Widget _buildWatchTrailerCTA() {
     return TextButton(
-        onPressed: () => _launchUrl(_videoUrl),
+        onPressed: () => Utils.openURL(_videoUrl),
         style: BaseStyles.ctaButtonStyle,
         child: Padding(
           padding: const EdgeInsets.symmetric(

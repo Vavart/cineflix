@@ -1,10 +1,10 @@
-// Basic imports
+// Basic and packages imports
 import 'dart:io';
+import 'dart:math';
 import 'package:cineflix/components/simple_card_builder.dart';
 import 'package:cineflix/models/api_search_response.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';

@@ -1,13 +1,17 @@
 // Basic imports
-import 'package:cineflix/models/profile_facts.dart';
 import 'package:flutter/material.dart';
 
 // Style imports
 import 'package:cineflix/styles/base.dart';
 import 'package:cineflix/styles/profile.dart';
+import 'package:feather_icons/feather_icons.dart';
+import 'package:cineflix/styles/movies.dart';
 
 // Data imports
 import 'package:cineflix/data/profile_data.dart';
+
+// Model imports
+import 'package:cineflix/models/profile_facts.dart';
 
 // Component imports
 import 'package:cineflix/components/utils.dart';
@@ -28,10 +32,7 @@ class Profile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: BaseStyles.spacing_2),
       child: Column(
-        children: [
-          _renderHeader(),
-          _renderFacts(),
-        ],
+        children: [_renderHeader(), _renderFacts(), _renderLinks()],
       ),
     );
   }
@@ -126,5 +127,45 @@ class Profile extends StatelessWidget {
         textAlign: TextAlign.left,
       ),
     );
+  }
+
+  Widget _renderLinks() {
+    return Container(
+      margin: const EdgeInsets.only(
+          top: BaseStyles.spacing_2, bottom: BaseStyles.spacing_7),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _renderLink("My website", Utils.maximeWebsiteURL),
+          const SizedBox(width: BaseStyles.spacing_3),
+          _renderLink("Julien's website", Utils.julienWebsiteURL),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderLink(String text, String uri) {
+    return TextButton(
+        onPressed: () => Utils.openURL(uri),
+        style: BaseStyles.ctaButtonStyle,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: BaseStyles.spacing_1, horizontal: BaseStyles.spacing_2),
+          child: Row(
+            children: [
+              Text(
+                text,
+                style: BaseStyles.boldSmallText,
+              ),
+              // Add a space between the icon and the text
+              const SizedBox(width: BaseStyles.spacing_1),
+              Icon(
+                FeatherIcons.externalLink,
+                color: BaseStyles.lightBlue,
+                size: MovieStyles.movieCTAIconSize,
+              ),
+            ],
+          ),
+        ));
   }
 }
