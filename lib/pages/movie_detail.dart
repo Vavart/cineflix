@@ -56,8 +56,8 @@ class MovieDetailState extends State<MovieDetail> {
     id: -1,
     backdrop_path: null,
     homepage: null,
-    original_title: "Placeholder movie",
-    overview: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
+    original_title: "Loading movie",
+    overview: "Loading the movie description ...",
     poster_path: null,
     release_date: "1970-01-01",
     vote_average: 0,
@@ -468,7 +468,7 @@ class MovieDetailState extends State<MovieDetail> {
           child: Row(
             children: [
               Text(
-                "Watch it on Youtube",
+                "Watch the trailer on Youtube",
                 style: BaseStyles.boldSmallText,
               ),
               // Add a space between the icon and the text

@@ -19,6 +19,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   sticky_headers: ^0.3.0+2
   youtube_player_flutter: ^8.1.2
+  cached_network_image: ^3.2.3
 
 dev_dependencies:
   flutter_test:

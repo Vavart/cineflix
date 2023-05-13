@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -300,20 +301,45 @@ class MoviesState extends State<Movies> {
   }
 
   Widget _renderMovieSimpleCardImage(int index) {
-    FadeInImage imageFadeIn;
-
+    // If the movie has a poster
     if (trendyMovies[index].poster_path != null) {
-      imageFadeIn = FadeInImage(
-        image: NetworkImage(
-          _apiImageUrl + trendyMovies[index].poster_path!,
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: CachedNetworkImage(
+          imageUrl: _apiImageUrl + trendyMovies[index].poster_path!,
+          placeholder: (context, url) {
+            return Center(
+              child: SizedBox(
+                  width: BaseStyles.spacing_5,
+                  height: BaseStyles.spacing_5,
+                  child: CircularProgressIndicator(
+                    color: BaseStyles.lightBlue,
+                    strokeWidth: BaseStyles.spacing_1,
+                  )),
+            );
+          },
+
+          // If the image fails to load display a default image instead
+          errorWidget: (context, url, error) {
+            return const FadeInImage(
+              image: AssetImage(
+                "assets/images/no_movie_preview.png",
+              ),
+              placeholder: AssetImage("assets/images/no_movie_preview.png"),
+              width: MovieStyles.movieCardImgWidth,
+              height: MovieStyles.movieCardImgHeight,
+              fit: BoxFit.cover,
+            );
+          },
+          width: MovieStyles.movieCardImgWidth,
+          height: MovieStyles.movieCardImgHeight,
+          fit: BoxFit.cover,
         ),
-        placeholder: const AssetImage("assets/images/no_movie_preview.png"),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
       );
+
+      // If the movie has no poster
     } else {
-      imageFadeIn = const FadeInImage(
+      FadeInImage imageFadeIn = const FadeInImage(
         image: AssetImage(
           "assets/images/no_movie_preview.png",
         ),
@@ -322,11 +348,11 @@ class MoviesState extends State<Movies> {
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       );
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: imageFadeIn,
+      );
     }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-      child: imageFadeIn,
-    );
   }
 
   Widget _renderMovieSimpleCardTitle(int index) {
@@ -435,14 +461,16 @@ class MoviesState extends State<Movies> {
   }
 
   Widget _renderMovieComplexCardInfo(BuildContext context, int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _renderMovieComplexCardTitle(index),
-        _renderMovieComplexCardIcons(index),
-        _renderMovieComplexCardDescription(context, index),
-      ],
+    return Flexible(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _renderMovieComplexCardTitle(index),
+          _renderMovieComplexCardIcons(index),
+          _renderMovieComplexCardDescription(context, index),
+        ],
+      ),
     );
   }
 
@@ -504,21 +532,13 @@ class MoviesState extends State<Movies> {
   }
 
   Widget _renderMovieComplexCardDescription(BuildContext context, int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: MediaQuery.of(context).orientation == Orientation.portrait
-          ? 200.0
-          : MediaQuery.of(context).size.width * 0.6,
-      child: Text(
-        selectedMovies[index].overview,
-        style: BaseStyles.smallText,
-        textAlign: TextAlign.left,
-
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
+    return Text(
+      selectedMovies[index].overview,
+      style: BaseStyles.smallText,
+      textAlign: TextAlign.left,
+      // Limit the number of lines to 4 and add an ellipsis if the text is too long
+      maxLines: 4,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
