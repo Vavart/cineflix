@@ -61,7 +61,6 @@ class SearchState extends State<Search> {
   }
 
   void init() async {
-
     setState(() => isLoading = true);
 
     // Init shared preferences
@@ -322,14 +321,16 @@ class SearchState extends State<Search> {
   }
 
   Widget _renderMovieComplexCardInfo(BuildContext context, int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _renderMovieComplexCardTitle(index),
-        _renderMovieComplexCardIcons(index),
-        _renderMovieComplexCardDescription(context, index),
-      ],
+    return Flexible(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _renderMovieComplexCardTitle(index),
+          _renderMovieComplexCardIcons(index),
+          _renderMovieComplexCardDescription(context, index),
+        ],
+      ),
     );
   }
 
@@ -394,21 +395,14 @@ class SearchState extends State<Search> {
   }
 
   Widget _renderMovieComplexCardDescription(BuildContext context, int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: BaseStyles.spacing_1, vertical: BaseStyles.spacing_1),
-      width: MediaQuery.of(context).orientation == Orientation.portrait
-          ? 200.0
-          : MediaQuery.of(context).size.width * 0.6,
-      child: Text(
-        searchedMovies[index].overview,
-        style: BaseStyles.smallText,
-        textAlign: TextAlign.left,
+    return Text(
+      searchedMovies[index].overview,
+      style: BaseStyles.smallText,
+      textAlign: TextAlign.left,
 
-        // Limit the number of lines to 2 and add an ellipsis if the text is too long
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
+      // Limit the number of lines to 2 and add an ellipsis if the text is too long
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
