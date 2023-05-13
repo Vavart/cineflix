@@ -229,22 +229,26 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieVideo() {
-    return YoutubePlayer(
-      controller: _youtubePlayerController,
-      showVideoProgressIndicator: true,
-      bottomActions: [
-        CurrentPosition(),
-        ProgressBar(
-            isExpanded: true,
-            colors: ProgressBarColors(
-              playedColor: BaseStyles.lightBlue,
-              handleColor: BaseStyles.lightBlue,
-              bufferedColor: BaseStyles.lightBlue.withOpacity(0.5),
-            )),
-        RemainingDuration(),
-        FullScreenButton(),
-      ],
-    );
+    if (_youtubePlayerController.initialVideoId.isEmpty) {
+      return Image.asset("assets/images/no_movie_video_error_preview.png");
+    } else {
+      return YoutubePlayer(
+        controller: _youtubePlayerController,
+        showVideoProgressIndicator: true,
+        bottomActions: [
+          CurrentPosition(),
+          ProgressBar(
+              isExpanded: true,
+              colors: ProgressBarColors(
+                playedColor: BaseStyles.lightBlue,
+                handleColor: BaseStyles.lightBlue,
+                bufferedColor: BaseStyles.lightBlue.withOpacity(0.5),
+              )),
+          RemainingDuration(),
+          FullScreenButton(),
+        ],
+      );
+    }
   }
 
   Widget _renderMoviePoster() {
@@ -264,7 +268,7 @@ class MovieDetailState extends State<MovieDetail> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: image,
-          fit: BoxFit.cover,
+          fit: BoxFit.fitHeight,
         ),
       ),
     );
@@ -418,22 +422,18 @@ class MovieDetailState extends State<MovieDetail> {
   List<Widget> _buildCTASection() {
     List<Widget> ctas = [];
 
-    // Build CTA buttons
-    ctas.add(_buildWatchTrailerCTA());
-    // Add a space between the youtube trailer button and the share button
-    ctas.add(const SizedBox(width: BaseStyles.spacing_3));
-    ctas.add(_buildShareCTA());
+    // If there is no videos available, we don't display the button
+    if (_videoUrl != "") {
+      ctas.add(_buildWatchTrailerCTA());
+      // Add a space between the youtube trailer button and the share button
+      ctas.add(const SizedBox(width: BaseStyles.spacing_3));
+    }
 
+    ctas.add(_buildShareCTA());
     return ctas;
   }
 
   Widget _buildWatchTrailerCTA() {
-    // If there is no videos available, we don't display the button
-    if (_videoUrl == "") {
-      return const SizedBox(
-        width: BaseStyles.spacing_3,
-      );
-    }
     return TextButton(
         onPressed: () => _launchUrl(_videoUrl),
         style: BaseStyles.ctaButtonStyle,
@@ -521,16 +521,31 @@ class MovieDetailState extends State<MovieDetail> {
 
   // Render the Trendy section movies
   Widget _renderCastingCharacters() {
-    return SizedBox(
-      height: MovieStyles.actorCardSize,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(BaseStyles.spacing_2,
-            BaseStyles.spacing_2, BaseStyles.spacing_2, BaseStyles.spacing_0),
-        itemCount: cast.length,
-        itemBuilder: _actorCardBuilder,
-      ),
-    );
+    // If there is a casting, we display it
+    if (cast.isNotEmpty) {
+      return SizedBox(
+        height: MovieStyles.actorCardSize,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.fromLTRB(BaseStyles.spacing_2,
+              BaseStyles.spacing_2, BaseStyles.spacing_2, BaseStyles.spacing_0),
+          itemCount: cast.length,
+          itemBuilder: _actorCardBuilder,
+        ),
+      );
+    }
+
+    // If there is no casting, we display a message
+    else {
+      return Container(
+        margin: const EdgeInsets.fromLTRB(BaseStyles.spacing_3,
+            BaseStyles.spacing_4, BaseStyles.spacing_3, BaseStyles.spacing_1),
+        child: Text(
+          "No casting available",
+          style: BaseStyles.text,
+        ),
+      );
+    }
   }
 
   // Render a simple movie card : image + title

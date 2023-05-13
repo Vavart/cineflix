@@ -37,7 +37,7 @@ class MoviesState extends State<Movies> {
   }
 
   // Selected movies id
-  final selectedMoviesId = [550, 1372, 78, 24, 324825];
+  final selectedMoviesId = [550, 1372, 78, 393, 324825];
 
   // Selected & trendy movies
   List<Movie> trendyMovies = [];
@@ -155,9 +155,17 @@ class MoviesState extends State<Movies> {
   Widget _renderAppTitle() {
     return Container(
       margin: const EdgeInsets.only(top: BaseStyles.spacing_2),
-      child: Text(
-        "Cineflix",
-        style: BaseStyles.appTitle,
+      child: Column(
+        children: [
+          Text(
+            "Cineflix",
+            style: BaseStyles.appTitle,
+          ),
+          Text(
+            "What are we watching today ?",
+            style: BaseStyles.text,
+          ),
+        ],
       ),
     );
   }
