@@ -168,6 +168,7 @@ class MovieDetailState extends State<MovieDetail> {
     List<Video> videos = apiVideoResponse.results;
     List<Video> filteredVideos = videos
         .where((video) =>
+            video.size == 1080 &&
             video.site == "YouTube" &&
             video.type == "Trailer" &&
             video.official == true)
@@ -179,6 +180,7 @@ class MovieDetailState extends State<MovieDetail> {
           ? "https://www.youtube.com/watch?v=${filteredVideos[0].key}"
           : "";
     });
+
   }
 
   // Launch movie trailer (when it's available)
@@ -306,8 +308,12 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderMovieHeaderYear() {
+    // Check if the movie has a release date (if not, display 'To be announced')
+    String movieReleaseDate = movie.release_date != ""
+        ? movie.release_date!.substring(0, 4)
+        : "To be announced";
     return Text(
-      movie.release_date.substring(0, 4),
+      movieReleaseDate,
       style: BaseStyles.smallText,
     );
   }

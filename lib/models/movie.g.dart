@@ -13,7 +13,7 @@ Movie _$MovieFromJson(Map<String, dynamic> json) => Movie(
       poster_path: json['poster_path'] as String?,
       homepage: json['homepage'] as String?,
       overview: json['overview'] as String,
-      release_date: json['release_date'] as String,
+      release_date: json['release_date'] as String?,
       vote_average: (json['vote_average'] as num).toDouble(),
     );
 

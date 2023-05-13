@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -291,33 +292,56 @@ class SearchState extends State<Search> {
   }
 
   Widget _renderMovieComplexCardImage(int index) {
-    FadeInImage imageFadeIn;
-
+    // If the movie has a poster
     if (searchedMovies[index].poster_path != null) {
-      imageFadeIn = FadeInImage(
-        image: NetworkImage(
-          _apiImageUrl + searchedMovies[index].poster_path!,
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: CachedNetworkImage(
+          imageUrl: _apiImageUrl + searchedMovies[index].poster_path!,
+          placeholder: (context, url) {
+            return Center(
+              child: SizedBox(
+                  width: BaseStyles.spacing_5,
+                  height: BaseStyles.spacing_5,
+                  child: CircularProgressIndicator(
+                    color: BaseStyles.lightBlue,
+                    strokeWidth: BaseStyles.spacing_1,
+                  )),
+            );
+          },
+
+          // If the image fails to load display a default image instead
+          errorWidget: (context, url, error) {
+            return const Image(
+              image: AssetImage(
+                "assets/images/no_movie_preview.png",
+              ),
+              width: MovieStyles.movieCardImgWidth,
+              height: MovieStyles.movieCardImgHeight,
+              fit: BoxFit.cover,
+            );
+          },
+          width: MovieStyles.movieCardImgWidth,
+          height: MovieStyles.movieCardImgHeight,
+          fit: BoxFit.cover,
         ),
-        placeholder: const AssetImage("assets/images/no_movie_preview.png"),
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
       );
+
+      // If the movie has no poster
     } else {
-      imageFadeIn = const FadeInImage(
+      Image img = const Image(
         image: AssetImage(
           "assets/images/no_movie_preview.png",
         ),
-        placeholder: AssetImage("assets/images/no_movie_preview.png"),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       );
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: img,
+      );
     }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-      child: imageFadeIn,
-    );
   }
 
   Widget _renderMovieComplexCardInfo(BuildContext context, int index) {

@@ -28,7 +28,7 @@ class Movie {
   final String? poster_path;
   final String? homepage;
   final String overview;
-  final String release_date;
+  final String? release_date;
   final double vote_average;
 
   Movie({
