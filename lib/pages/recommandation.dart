@@ -4,6 +4,8 @@ import 'package:cineflix/models/api_search_response.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -254,27 +256,56 @@ class RecommandationState extends State<Recommandation> {
   }
 
   Widget _renderSuggestionCardImage(Movie movie) {
-    ImageProvider image = const AssetImage(
-      "assets/images/no_movie_preview.png",
-    );
-
+    // If the movie has a poster
     if (movie.backdrop_path != null) {
-      image = NetworkImage(
-        _apiImageUrl + movie.backdrop_path!,
-      );
-    }
-
-    return Container(
-      width: MovieStyles.movieCardImgWidth,
-      height: MovieStyles.movieCardImgHeight,
-      decoration: BoxDecoration(
+      return ClipRRect(
         borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        image: DecorationImage(
-          image: image,
+        child: CachedNetworkImage(
+          imageUrl: _apiImageUrl + movie.backdrop_path!,
+          placeholder: (context, url) {
+            return Center(
+              child: SizedBox(
+                  width: BaseStyles.spacing_5,
+                  height: BaseStyles.spacing_5,
+                  child: CircularProgressIndicator(
+                    color: BaseStyles.lightBlue,
+                    strokeWidth: BaseStyles.spacing_1,
+                  )),
+            );
+          },
+
+          // If the image fails to load display a default image instead
+          errorWidget: (context, url, error) {
+            return const Image(
+              image: AssetImage(
+                "assets/images/no_movie_preview.png",
+              ),
+              width: MovieStyles.movieCardImgWidth,
+              height: MovieStyles.movieCardImgHeight,
+              fit: BoxFit.cover,
+            );
+          },
+          width: MovieStyles.movieCardImgWidth,
+          height: MovieStyles.movieCardImgHeight,
           fit: BoxFit.cover,
         ),
-      ),
-    );
+      );
+
+      // If the movie has no poster
+    } else {
+      Image img = const Image(
+        image: AssetImage(
+          "assets/images/no_movie_preview.png",
+        ),
+        width: MovieStyles.movieCardImgWidth,
+        height: MovieStyles.movieCardImgHeight,
+        fit: BoxFit.cover,
+      );
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: img,
+      );
+    }
   }
 
   Widget _renderSuggestionCardTitle(String title) {

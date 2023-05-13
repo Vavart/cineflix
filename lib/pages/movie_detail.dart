@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // Styles imports
 import 'package:cineflix/styles/base.dart';
@@ -141,19 +142,6 @@ class MovieDetailState extends State<MovieDetail> {
 
     // Save the list of all favorite movies id (in the shared preferences)
     _prefs.setStringList("favorite_movies", _favoriteMovies);
-
-    // Show a snackbar to inform the user that the movie has been added to the favorite list
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: BaseStyles.darkShade_1,
-        content: Text(
-          _isFavorite
-              ? "${movie.original_title} has been added to your favorite list"
-              : "${movie.original_title} has been removed from your favorite list",
-          style: BaseStyles.snackBarText,
-        ),
-      ),
-    );
   }
 
   void _handleWatchedButtonPressed() async {
@@ -171,19 +159,6 @@ class MovieDetailState extends State<MovieDetail> {
 
     // Save the list of all watched movies id (in the shared preferences)
     _prefs.setStringList("watched_movies", _watchedMovies);
-
-    // Show a snackbar to inform the user that the movie has been added to the watched list
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: BaseStyles.darkShade_1,
-        content: Text(
-          _isWatched
-              ? "${movie.original_title} has been added to your watched list"
-              : "${movie.original_title} has been removed from your watched list",
-          style: BaseStyles.snackBarText,
-        ),
-      ),
-    );
   }
 
   // Get the movie video url (if it exists)
@@ -574,27 +549,56 @@ class MovieDetailState extends State<MovieDetail> {
   }
 
   Widget _renderActorCardPicture(int index) {
-    ImageProvider image = const AssetImage(
-      "assets/images/no_actor_preview.png",
-    );
-
+    // If the actor has a poster
     if (cast[index].profile_path != null) {
-      image = NetworkImage(
-        _apiImageUrl + cast[index].profile_path!,
-      );
-    }
-
-    return Container(
-      width: MovieStyles.actorCardImgWidth,
-      height: MovieStyles.actorCardImgHeight,
-      decoration: BoxDecoration(
+      return ClipRRect(
         borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        image: DecorationImage(
-          image: image,
+        child: CachedNetworkImage(
+          imageUrl: _apiImageUrl + cast[index].profile_path!,
+          placeholder: (context, url) {
+            return Center(
+              child: SizedBox(
+                  width: BaseStyles.spacing_5,
+                  height: BaseStyles.spacing_5,
+                  child: CircularProgressIndicator(
+                    color: BaseStyles.lightBlue,
+                    strokeWidth: BaseStyles.spacing_1,
+                  )),
+            );
+          },
+
+          // If the image fails to load display a default image instead
+          errorWidget: (context, url, error) {
+            return const Image(
+              image: AssetImage(
+                "assets/images/no_actor_preview.png",
+              ),
+              width: MovieStyles.movieCardImgWidth,
+              height: MovieStyles.movieCardImgHeight,
+              fit: BoxFit.cover,
+            );
+          },
+          width: MovieStyles.movieCardImgWidth,
+          height: MovieStyles.movieCardImgHeight,
           fit: BoxFit.cover,
         ),
-      ),
-    );
+      );
+
+      // If the movie has no poster
+    } else {
+      Image img = const Image(
+        image: AssetImage(
+          "assets/images/no_actor_preview.png",
+        ),
+        width: MovieStyles.movieCardImgWidth,
+        height: MovieStyles.movieCardImgHeight,
+        fit: BoxFit.cover,
+      );
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: img,
+      );
+    }
   }
 
   Widget _renderActorCardName(int index) {

@@ -321,11 +321,10 @@ class MoviesState extends State<Movies> {
 
           // If the image fails to load display a default image instead
           errorWidget: (context, url, error) {
-            return const FadeInImage(
+            return const Image(
               image: AssetImage(
                 "assets/images/no_movie_preview.png",
               ),
-              placeholder: AssetImage("assets/images/no_movie_preview.png"),
               width: MovieStyles.movieCardImgWidth,
               height: MovieStyles.movieCardImgHeight,
               fit: BoxFit.cover,
@@ -339,18 +338,17 @@ class MoviesState extends State<Movies> {
 
       // If the movie has no poster
     } else {
-      FadeInImage imageFadeIn = const FadeInImage(
+      Image img = const Image(
         image: AssetImage(
           "assets/images/no_movie_preview.png",
         ),
-        placeholder: AssetImage("assets/images/no_movie_preview.png"),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       );
       return ClipRRect(
         borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: imageFadeIn,
+        child: img,
       );
     }
   }
@@ -438,26 +436,56 @@ class MoviesState extends State<Movies> {
   }
 
   Widget _renderMovieComplexCardImage(int index) {
-    Image image;
+    // If the movie has a poster
     if (selectedMovies[index].poster_path != null) {
-      image = Image.network(
-        _apiImageUrl + selectedMovies[index].poster_path!,
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: CachedNetworkImage(
+          imageUrl: _apiImageUrl + selectedMovies[index].poster_path!,
+          placeholder: (context, url) {
+            return Center(
+              child: SizedBox(
+                  width: BaseStyles.spacing_5,
+                  height: BaseStyles.spacing_5,
+                  child: CircularProgressIndicator(
+                    color: BaseStyles.lightBlue,
+                    strokeWidth: BaseStyles.spacing_1,
+                  )),
+            );
+          },
+
+          // If the image fails to load display a default image instead
+          errorWidget: (context, url, error) {
+            return const Image(
+              image: AssetImage(
+                "assets/images/no_movie_preview.png",
+              ),
+              width: MovieStyles.movieCardImgWidth,
+              height: MovieStyles.movieCardImgHeight,
+              fit: BoxFit.cover,
+            );
+          },
+          width: MovieStyles.movieCardImgWidth,
+          height: MovieStyles.movieCardImgHeight,
+          fit: BoxFit.cover,
+        ),
+      );
+
+      // If the movie has no poster
+    } else {
+      Image img = const Image(
+        image: AssetImage(
+          "assets/images/no_movie_preview.png",
+        ),
         width: MovieStyles.movieCardImgWidth,
         height: MovieStyles.movieCardImgHeight,
         fit: BoxFit.cover,
       );
-    } else {
-      image = Image.asset(
-        "assets/images/no_movie_preview.png",
-        width: MovieStyles.movieCardImgWidth,
-        height: MovieStyles.movieCardImgHeight,
-        fit: BoxFit.cover,
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
+        child: img,
       );
     }
-
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(BaseStyles.spacing_1),
-        child: image);
   }
 
   Widget _renderMovieComplexCardInfo(BuildContext context, int index) {
