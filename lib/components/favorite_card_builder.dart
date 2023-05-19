@@ -7,10 +7,10 @@ import 'package:cineflix/styles/base.dart';
 class FavoriteCardBuilder {
   // Texts
   static String noFavoritesText =
-      "You didn't add any movie to your favorites 😢\n\nTry to search for a movie you love !";
+      "You didn't add any movies to your favorites 😢\n\nTry searching for a movie you love !";
 
   static String noWatchedText =
-      "You didn't add any movie to your watched list 😢\n\nTry to search for a movie !";
+      "You didn't add any movies to your watched list 😢\n\nTry searching for a movie !";
 
   // Render methods
   static Widget renderNoFavoritesOrWatchedText(bool isTextFavorite) {
