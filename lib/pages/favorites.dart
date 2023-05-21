@@ -149,6 +149,7 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
           "${_favoriteMoviesData[movieIndex].original_title} has been removed from your favorites",
           style: BaseStyles.snackBarText),
       behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2, milliseconds: 500),
       action: SnackBarAction(
         textColor: BaseStyles.lightBlue,
         label: 'Undo',
@@ -191,6 +192,7 @@ class FavoritesStage extends State<Favorites> with TickerProviderStateMixin {
           "${_watchedMoviesData[movieIndex].original_title} has been removed from your watch list",
           style: BaseStyles.snackBarText),
       behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2, milliseconds: 500),
       action: SnackBarAction(
         textColor: BaseStyles.lightBlue,
         label: 'Undo',
