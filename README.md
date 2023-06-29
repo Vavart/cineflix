@@ -6,3 +6,9 @@ Cineflix a is a mobile app based on Flutter. It allows the user to search movies
 ## TMDB / attribution
 The whole app uses TMDB's API to display the movies. 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+## .env template
+API_KEY=664467a113s37ffsawxv10a
+API_SCHEME=https
+API_PREFIX=/3
+API_HOST=api.themoviedb.org
